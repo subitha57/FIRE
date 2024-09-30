@@ -1,6 +1,8 @@
 const Budget = require("../Model/budgetModel");
+const PersonalBudget = require("../Model/personalModel");
 const User = require("../Model/emailModel");
 
+// Function to create a budget entry
 exports.Create = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
@@ -29,9 +31,9 @@ exports.Create = async (req, res) => {
     const newBudget = new Budget({
       month,
       year,
-      income: Number(income),  // Ensure income is stored as a number
-      otherIncome: Number(otherIncome || 0),  // Ensure otherIncome is stored as a number
-      totalIncome,  // Store the calculated total income
+      income: Number(income),
+      otherIncome: Number(otherIncome || 0),
+      totalIncome,
       userId,
     });
 
@@ -51,7 +53,7 @@ exports.Create = async (req, res) => {
   }
 };
 
-
+// Function to get a budget entry by ID
 exports.getById = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
@@ -76,6 +78,7 @@ exports.getById = async (req, res) => {
   }
 };
 
+// Function to view a budget entry by month, year, and userId
 exports.View = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
@@ -107,6 +110,7 @@ exports.View = async (req, res) => {
   }
 };
 
+// Function to update a budget entry
 exports.Update = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
@@ -127,11 +131,12 @@ exports.Update = async (req, res) => {
       });
     }
 
-    const totalIncome = income + (otherIncome || 0);
+    // Convert income and otherIncome to numbers before addition
+    const totalIncome = Number(income) + Number(otherIncome || 0);
 
     const updatedBudget = await Budget.findByIdAndUpdate(
       id,
-      { month, year, income, otherIncome, totalIncome, userId },
+      { month, year, income: Number(income), otherIncome: Number(otherIncome || 0), totalIncome, userId },
       { new: true }
     );
 
@@ -147,6 +152,7 @@ exports.Update = async (req, res) => {
   }
 };
 
+// Function to delete a budget entry
 exports.Delete = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
@@ -167,6 +173,57 @@ exports.Delete = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: "Failed to delete budget",
+      error: error.message,
+    });
+  }
+};
+
+// Function to calculate budget totals
+exports.CalculateBudget = async (req, res) => {
+  //#swagger.tags = ['User-Budget']
+  try {
+    const { month, year, userId } = req.query;
+
+    // Find the user by ID
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    // Find the user's budget entry for the given month and year
+    const budget = await Budget.findOne({ month, year, userId });
+    if (!budget) {
+      return res.status(404).json({
+        message: "No budget found for the selected month and year",
+      });
+    }
+
+    // Find the user's personal budget entry for the same month and year
+    const personalBudget = await PersonalBudget.findOne({ month, year, userId });
+    if (!personalBudget) {
+      return res.status(404).json({
+        message: "No personal budget found for the selected month and year",
+      });
+    }
+
+    // Calculate total income and total expenses
+    const totalIncome = budget.totalIncome;
+    const totalExpenses = personalBudget.totalExpenses;
+
+    // Calculate remaining balance
+    const remainingBalance = totalIncome - totalExpenses;
+
+    return res.status(200).json({
+      message: "Budget calculated successfully",
+      totalIncome,
+      totalExpenses,
+      remainingBalance,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to calculate budget",
       error: error.message,
     });
   }

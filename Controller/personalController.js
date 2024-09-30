@@ -33,19 +33,20 @@ exports.Create = async (req, res) => {
       });
     }
 
+    // Ensure all values are treated as numbers for summation
     const totalExpenses =
-      housing +
-      entertainment +
-      transportation +
-      loans +
-      insurance +
-      taxes +
-      food +
-      savingsAndInvestments +
-      pets +
-      giftsAndDonations +
-      personalCare +
-      legal;
+      Number(housing) +
+      Number(entertainment) +
+      Number(transportation) +
+      Number(loans) +
+      Number(insurance) +
+      Number(taxes) +
+      Number(food) +
+      Number(savingsAndInvestments) +
+      Number(pets) +
+      Number(giftsAndDonations) +
+      Number(personalCare) +
+      Number(legal);
 
     const newBudget = new PersonalBudget({
       month,
@@ -93,7 +94,7 @@ exports.Create = async (req, res) => {
           personalCare: formatAmount(newBudget.categories.personalCare),
           legal: formatAmount(newBudget.categories.legal),
         },
-        totalExpenses: formatAmount(newBudget.totalExpenses),
+        totalExpenses: formatAmount(newBudget.totalExpenses), 
         userId: newBudget.userId,
       },
     });
