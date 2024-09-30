@@ -25,7 +25,7 @@ const budgetSchema = new mongoose.Schema({
     },
     totalIncome: {
         type: Number,
-        required: false,
+        required: true,
     },
     }, { timestamps: true }
 );

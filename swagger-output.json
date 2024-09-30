@@ -514,6 +514,147 @@
         }
       }
     },
+    "/api/budget/getById/{id}": {
+      "get": {
+        "tags": [
+          "User-Budget"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/budget/view": {
+      "get": {
+        "tags": [
+          "User-Budget"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/budget/update/{id}": {
+      "put": {
+        "tags": [
+          "User-Budget"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "month": {
+                  "example": "any"
+                },
+                "year": {
+                  "example": "any"
+                },
+                "income": {
+                  "example": "any"
+                },
+                "otherIncome": {
+                  "example": "any"
+                },
+                "userId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/budget/delete/{id}": {
+      "delete": {
+        "tags": [
+          "User-Budget"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/personal/create": {
       "post": {
         "tags": [
