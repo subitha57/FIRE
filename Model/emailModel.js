@@ -14,10 +14,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    refreshToken: {
-      type: String,
-      required: false,
-    },
+    
     loggedIn: {
       type: Boolean,
       default: false,

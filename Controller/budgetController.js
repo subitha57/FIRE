@@ -2,13 +2,11 @@ const Budget = require("../Model/budgetModel");
 const PersonalBudget = require("../Model/personalModel");
 const User = require("../Model/emailModel");
 
-// Function to create a budget entry
 exports.Create = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
     const { month, year, income, otherIncome, userId } = req.body;
 
-    // Find the user by ID
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
@@ -16,7 +14,6 @@ exports.Create = async (req, res) => {
       });
     }
 
-    // Check if a budget entry already exists for the given month, year, and user
     const existingBudget = await Budget.findOne({ month, year, userId });
     if (existingBudget) {
       return res.status(400).json({
@@ -24,10 +21,8 @@ exports.Create = async (req, res) => {
       });
     }
 
-    // Ensure the income and otherIncome are numbers before addition
     const totalIncome = Number(income) + Number(otherIncome || 0);
 
-    // Create a new budget entry
     const newBudget = new Budget({
       month,
       year,
@@ -37,10 +32,8 @@ exports.Create = async (req, res) => {
       userId,
     });
 
-    // Save the new budget entry
     await newBudget.save();
 
-    // Return the created budget entry
     return res.status(201).json({
       message: "Budget entry created successfully",
       budget: newBudget,
@@ -53,7 +46,6 @@ exports.Create = async (req, res) => {
   }
 };
 
-// Function to get a budget entry by ID
 exports.getById = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
@@ -78,7 +70,6 @@ exports.getById = async (req, res) => {
   }
 };
 
-// Function to view a budget entry by month, year, and userId
 exports.View = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
@@ -110,7 +101,6 @@ exports.View = async (req, res) => {
   }
 };
 
-// Function to update a budget entry
 exports.Update = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
@@ -131,12 +121,18 @@ exports.Update = async (req, res) => {
       });
     }
 
-    // Convert income and otherIncome to numbers before addition
     const totalIncome = Number(income) + Number(otherIncome || 0);
 
     const updatedBudget = await Budget.findByIdAndUpdate(
       id,
-      { month, year, income: Number(income), otherIncome: Number(otherIncome || 0), totalIncome, userId },
+      {
+        month,
+        year,
+        income: Number(income),
+        otherIncome: Number(otherIncome || 0),
+        totalIncome,
+        userId,
+      },
       { new: true }
     );
 
@@ -152,7 +148,6 @@ exports.Update = async (req, res) => {
   }
 };
 
-// Function to delete a budget entry
 exports.Delete = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
@@ -178,13 +173,11 @@ exports.Delete = async (req, res) => {
   }
 };
 
-// Function to calculate budget totals
 exports.CalculateBudget = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
     const { month, year, userId } = req.query;
 
-    // Find the user by ID
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
@@ -192,7 +185,6 @@ exports.CalculateBudget = async (req, res) => {
       });
     }
 
-    // Find the user's budget entry for the given month and year
     const budget = await Budget.findOne({ month, year, userId });
     if (!budget) {
       return res.status(404).json({
@@ -200,19 +192,20 @@ exports.CalculateBudget = async (req, res) => {
       });
     }
 
-    // Find the user's personal budget entry for the same month and year
-    const personalBudget = await PersonalBudget.findOne({ month, year, userId });
+    const personalBudget = await PersonalBudget.findOne({
+      month,
+      year,
+      userId,
+    });
     if (!personalBudget) {
       return res.status(404).json({
         message: "No personal budget found for the selected month and year",
       });
     }
 
-    // Calculate total income and total expenses
     const totalIncome = budget.totalIncome;
     const totalExpenses = personalBudget.totalExpenses;
 
-    // Calculate remaining balance
     const remainingBalance = totalIncome - totalExpenses;
 
     return res.status(200).json({
