@@ -39,14 +39,14 @@ exports.getExpenseById = async (req, res) => {
     }
 };
 
-// Update an expense
+// Update an expense using name
 exports.updateExpense = async (req, res) => {
     //#swagger.tags = ['Master-Expenses']
     try {
         const { serialNo, name } = req.body;
-        const updatedExpense = await ExpensesMaster.findOne(
-            req.params.name,
-            { serialNo, name },
+        const updatedExpense = await ExpensesMaster.findOneAndUpdate(
+            { name: req.params.name },  // Find by name
+            { serialNo, name },          // Update serialNo and name
             { new: true }
         );
         if (!updatedExpense) {
@@ -58,11 +58,11 @@ exports.updateExpense = async (req, res) => {
     }
 };
 
-// Delete an expense
+// Delete an expense using name
 exports.deleteExpense = async (req, res) => {
     //#swagger.tags = ['Master-Expenses']
     try {
-        const deletedExpense = await ExpensesMaster.findOne(req.params.name);
+        const deletedExpense = await ExpensesMaster.findOneAndDelete({ name: req.params.name }); // Find by name
         if (!deletedExpense) {
             return res.status(404).json({ message: 'Expense not found' });
         }

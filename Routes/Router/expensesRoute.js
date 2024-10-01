@@ -8,8 +8,8 @@ router.get("/all", expensesMasterController.getAllExpenses);
 
 router.get("/:id", expensesMasterController.getExpenseById);
 
-router.put("/update/:id", expensesMasterController.updateExpense);
+router.put("/update/:name", expensesMasterController.updateExpense);
 
-router.delete("/delete/:id", expensesMasterController.deleteExpense);
+router.delete("/delete/:name", expensesMasterController.deleteExpense);
 
 module.exports = router;
