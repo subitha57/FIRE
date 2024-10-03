@@ -16,7 +16,7 @@ exports.Create = async (req, res) => {
 
     const existingBudget = await Budget.findOne({ month, year, userId });
     if (existingBudget) {
-      return res.status(400).json({
+      return res.status(200).json({
         message: "Budget entry already exists for this month and year",
       });
     }
@@ -53,12 +53,12 @@ exports.getById = async (req, res) => {
 
     const budget = await Budget.findById(id);
     if (!budget) {
-      return res.status(404).json({
+      return res.status(200).json({
         message: "Budget not found",
       });
     }
 
-    return res.status(200).json({
+    return res.status(201).json({
       message: "Budget retrieved successfully",
       budget,
     });
@@ -84,12 +84,12 @@ exports.View = async (req, res) => {
 
     const budget = await Budget.findOne({ month, year, userId });
     if (!budget) {
-      return res.status(404).json({
+      return res.status(200).json({
         message: "No budget found for the selected month and year",
       });
     }
 
-    return res.status(200).json({
+    return res.status(201).json({
       message: "Budget retrieved successfully",
       budget,
     });
@@ -136,7 +136,7 @@ exports.Update = async (req, res) => {
       { new: true }
     );
 
-    return res.status(200).json({
+    return res.status(201).json({
       message: "Budget updated successfully",
       budget: updatedBudget,
     });
@@ -162,7 +162,7 @@ exports.Delete = async (req, res) => {
 
     await Budget.findByIdAndDelete(id);
 
-    return res.status(200).json({
+    return res.status(201).json({
       message: "Budget deleted successfully",
     });
   } catch (error) {

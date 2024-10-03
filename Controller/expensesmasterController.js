@@ -59,8 +59,8 @@ exports.updateExpense = async (req, res) => {
   try {
     const { serialNo, name } = req.body;
     const updatedExpense = await ExpensesMaster.findOneAndUpdate(
-      { name: req.params.name }, // Find by name
-      { serialNo, name }, // Update serialNo and name
+      { name: req.params.name }, 
+      { serialNo, name }, 
       { new: true }
     );
     if (!updatedExpense) {

@@ -466,11 +466,11 @@
           }
         ],
         "responses": {
+          "200": {
+            "description": "OK"
+          },
           "201": {
             "description": "Created"
-          },
-          "400": {
-            "description": "Bad Request"
           },
           "404": {
             "description": "Not Found"
@@ -499,8 +499,8 @@
           "200": {
             "description": "OK"
           },
-          "404": {
-            "description": "Not Found"
+          "201": {
+            "description": "Created"
           },
           "500": {
             "description": "Internal Server Error"
@@ -534,6 +534,9 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "201": {
+            "description": "Created"
           },
           "404": {
             "description": "Not Found"
@@ -583,8 +586,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created"
           },
           "404": {
             "description": "Not Found"
@@ -610,8 +613,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created"
           },
           "404": {
             "description": "Not Found"

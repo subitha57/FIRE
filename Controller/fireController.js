@@ -34,6 +34,27 @@ exports.Create = async (req, res) => {
     expectancy,
   } = req.body;
 
+  // Validate required fields
+  if (
+    !userId ||
+    !occupation ||
+    !city ||
+    !age ||
+    !retireage ||
+    !expense ||
+    !inflation ||
+    !monthlysavings ||
+    !retirementsavings ||
+    !prereturn ||
+    !postreturn ||
+    !expectancy
+  ) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required",
+    });
+  }
+
   try {
     const existingUser = await User.findById(userId);
     if (!existingUser) {
@@ -127,9 +148,8 @@ exports.Calculate = async (req, res) => {
 
     const extraMonthlySavings =
       extraOneTimeSavings > 0
-        ? (extraOneTimeSavings * (prereturn / 100)) /
-          (Math.pow(1 + prereturn / 100, yearsToRetirement) - 1) /
-          12
+        ? (extraOneTimeSavings * monthlyRate) /
+          (Math.pow(1 + monthlyRate, monthsToRetirement) - 1)
         : 0;
 
     const results = {
