@@ -2,6 +2,11 @@ const Budget = require("../Model/budgetModel");
 const PersonalBudget = require("../Model/personalModel");
 const User = require("../Model/emailModel");
 
+// Utility function to format numbers with commas
+const formatNumber = (number) => {
+  return new Intl.NumberFormat('en-US').format(number);
+};
+
 exports.Create = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
@@ -36,7 +41,12 @@ exports.Create = async (req, res) => {
 
     return res.status(201).json({
       message: "Budget entry created successfully",
-      budget: newBudget,
+      budget: {
+        ...newBudget.toObject(),
+        income: formatNumber(newBudget.income),
+        otherIncome: formatNumber(newBudget.otherIncome),
+        totalIncome: formatNumber(newBudget.totalIncome),
+      },
     });
   } catch (error) {
     return res.status(500).json({
@@ -60,7 +70,12 @@ exports.getById = async (req, res) => {
 
     return res.status(201).json({
       message: "Budget retrieved successfully",
-      budget,
+      budget: {
+        ...budget.toObject(),
+        income: formatNumber(budget.income),
+        otherIncome: formatNumber(budget.otherIncome),
+        totalIncome: formatNumber(budget.totalIncome),
+      },
     });
   } catch (error) {
     return res.status(500).json({
@@ -91,7 +106,12 @@ exports.View = async (req, res) => {
 
     return res.status(201).json({
       message: "Budget retrieved successfully",
-      budget,
+      budget: {
+        ...budget.toObject(),
+        income: formatNumber(budget.income),
+        otherIncome: formatNumber(budget.otherIncome),
+        totalIncome: formatNumber(budget.totalIncome),
+      },
     });
   } catch (error) {
     return res.status(500).json({
@@ -138,7 +158,12 @@ exports.Update = async (req, res) => {
 
     return res.status(201).json({
       message: "Budget updated successfully",
-      budget: updatedBudget,
+      budget: {
+        ...updatedBudget.toObject(),
+        income: formatNumber(updatedBudget.income),
+        otherIncome: formatNumber(updatedBudget.otherIncome),
+        totalIncome: formatNumber(updatedBudget.totalIncome),
+      },
     });
   } catch (error) {
     return res.status(500).json({
@@ -205,14 +230,13 @@ exports.CalculateBudget = async (req, res) => {
 
     const totalIncome = budget.totalIncome;
     const totalExpenses = personalBudget.totalExpenses;
-
     const remainingBalance = totalIncome - totalExpenses;
 
     return res.status(200).json({
       message: "Budget calculated successfully",
-      totalIncome,
-      totalExpenses,
-      remainingBalance,
+      totalIncome: formatNumber(totalIncome),
+      totalExpenses: formatNumber(totalExpenses),
+      remainingBalance: formatNumber(remainingBalance),
     });
   } catch (error) {
     return res.status(500).json({
