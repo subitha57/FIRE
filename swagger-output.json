@@ -736,6 +736,151 @@
         }
       }
     },
+    "/api/personal/getById/{id}": {
+      "get": {
+        "tags": [
+          "User-PersonalBudget"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/personal/update/{id}": {
+      "put": {
+        "tags": [
+          "User-PersonalBudget"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "housing": {
+                  "example": "any"
+                },
+                "entertainment": {
+                  "example": "any"
+                },
+                "transportation": {
+                  "example": "any"
+                },
+                "loans": {
+                  "example": "any"
+                },
+                "insurance": {
+                  "example": "any"
+                },
+                "taxes": {
+                  "example": "any"
+                },
+                "food": {
+                  "example": "any"
+                },
+                "savingsAndInvestments": {
+                  "example": "any"
+                },
+                "pets": {
+                  "example": "any"
+                },
+                "giftsAndDonations": {
+                  "example": "any"
+                },
+                "personalCare": {
+                  "example": "any"
+                },
+                "legal": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/personal/view": {
+      "get": {
+        "tags": [
+          "User-PersonalBudget"
+        ],
+        "description": "",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/personal/delate/{id}": {
+      "delete": {
+        "tags": [
+          "User-PersonalBudget"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/master/create": {
       "post": {
         "tags": [
