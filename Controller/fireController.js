@@ -49,7 +49,7 @@ exports.Create = async (req, res) => {
     !postreturn ||
     !expectancy
   ) {
-    return res.status(400).json({
+    return res.status(200).json({
       success: false,
       message: "All fields are required",
     });
@@ -81,11 +81,29 @@ exports.Create = async (req, res) => {
 
     await fireQuestionData.save();
 
+    // Format the numbers in the response
+    fireQuestionData.expense = formatNumberWithCommas(fireQuestionData.expense);
+    fireQuestionData.monthlysavings = formatNumberWithCommas(fireQuestionData.monthlysavings);
+    fireQuestionData.retirementsavings = formatNumberWithCommas(fireQuestionData.retirementsavings);
+
     res.status(201).json({
       success: true,
       message: "FireQuestion created successfully",
-      fireId: fireQuestionData._id,
-      fireQuestionData,
+      fireId: fireQuestionData._id, // Only sending fireId here
+      fireQuestionData: {
+        userId: fireQuestionData.userId,
+        occupation: fireQuestionData.occupation,
+        city: fireQuestionData.city,
+        age: fireQuestionData.age,
+        retireage: fireQuestionData.retireage,
+        expense: fireQuestionData.expense,
+        inflation: fireQuestionData.inflation,
+        monthlysavings: fireQuestionData.monthlysavings,
+        retirementsavings: fireQuestionData.retirementsavings,
+        prereturn: fireQuestionData.prereturn,
+        postreturn: fireQuestionData.postreturn,
+        expectancy: fireQuestionData.expectancy,
+      },
     });
   } catch (error) {
     res.status(500).json({
@@ -104,7 +122,7 @@ exports.Calculate = async (req, res) => {
     const fireQuestionData = await FireQuestion.findById(fireId);
 
     if (!fireQuestionData) {
-      return res.status(404).json({
+      return res.status(200).json({
         success: false,
         message: "FireQuestion not found for the user.",
       });
@@ -164,6 +182,7 @@ exports.Calculate = async (req, res) => {
       extraMonthlySavingsRequired: Math.round(extraMonthlySavings),
     };
 
+    // Save the calculated data
     fireQuestionData.yearsLeftForRetirement = results.yearsLeftForRetirement;
     fireQuestionData.monthlyExpensesAfterRetirement =
       results.monthlyExpensesAfterRetirement;
@@ -180,34 +199,33 @@ exports.Calculate = async (req, res) => {
 
     await fireQuestionData.save();
 
+    // Format the response with commas
     res.status(200).json({
       success: true,
       message: "Retirement calculation successful and data saved",
       data: {
         yearsLeftForRetirement: formatNumberWithCommas(
-          Math.round(yearsToRetirement)
+          results.yearsLeftForRetirement
         ),
         monthlyExpensesAfterRetirement: formatNumberWithCommas(
-          Math.round(adjustedExpense)
+          results.monthlyExpensesAfterRetirement
         ),
-        targetedSavings: formatNumberWithCommas(Math.round(targetSavings)),
+        targetedSavings: formatNumberWithCommas(results.targetedSavings),
         totalSavingsAtRetirement: formatNumberWithCommas(
-          Math.round(totalSavingsAtRetirement)
+          results.totalSavingsAtRetirement
         ),
         accumulatedSavings: formatNumberWithCommas(
-          Math.round(accumulatedSavingsFromMonthly)
+          results.accumulatedSavings
         ),
-        shortfallInSavings: formatNumberWithCommas(
-          Math.round(savingsShortfall)
-        ),
+        shortfallInSavings: formatNumberWithCommas(results.shortfallInSavings),
         existingSavingsGrowth: formatNumberWithCommas(
-          Math.round(savingsAtRetirement)
+          results.existingSavingsGrowth
         ),
         extraOneTimeSavingsRequired: formatNumberWithCommas(
-          Math.round(extraOneTimeSavings)
+          results.extraOneTimeSavingsRequired
         ),
         extraMonthlySavingsRequired: formatNumberWithCommas(
-          Math.round(extraMonthlySavings)
+          results.extraMonthlySavingsRequired
         ),
       },
     });
