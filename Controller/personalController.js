@@ -201,18 +201,24 @@ exports.update = async (req, res) => {
 exports.view = async (req, res) => {
   //#swagger.tags = ['User-PersonalBudget']
   try {
-    const { month, year, userId } = req.params;
-    const budget = await PersonalBudget.findOne({
-      month,
-      year,
-      userId,
-    });
+    const { month, year, userId } = req.query;
 
-    if (!budget) {
-      return res.status(404).json({ message: "Budget not found" });
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
     }
 
-    return res.status(200).json({
+    const budget = await PersonalBudget.findOne({ month, year, userId });
+    if (!budget) {
+      return res.status(200).json({
+        message: "No budget found for the selected month and year",
+      });
+    }
+
+    return res.status(201).json({
+      message: "Budget retrieved successfully",
       budget,
     });
   } catch (error) {

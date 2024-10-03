@@ -841,9 +841,29 @@
           "User-PersonalBudget"
         ],
         "description": "",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "201": {
+            "description": "Created"
           },
           "404": {
             "description": "Not Found"
