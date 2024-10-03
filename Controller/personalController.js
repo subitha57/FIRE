@@ -5,7 +5,6 @@ const formatAmount = (amount) => {
   return new Intl.NumberFormat("en-IN").format(amount);
 };
 
-// Create Budget
 exports.Create = async (req, res) => {
   //#swagger.tags = ['User-PersonalBudget']
   try {
@@ -27,6 +26,7 @@ exports.Create = async (req, res) => {
       userId,
     } = req.body;
 
+    // Check if the user exists in the database
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
@@ -34,6 +34,20 @@ exports.Create = async (req, res) => {
       });
     }
 
+    // Check if a budget for the same month, year, and user already exists
+    const existingBudget = await PersonalBudget.findOne({
+      month,
+      year,
+      userId,
+    });
+
+    if (existingBudget) {
+      return res.status(200).json({
+        message: `A budget for the month ${month} and year ${year} already exists for this user.`,
+      });
+    }
+
+    // Ensure all values are treated as numbers for summation
     const totalExpenses =
       Number(housing) +
       Number(entertainment) +
@@ -48,6 +62,7 @@ exports.Create = async (req, res) => {
       Number(personalCare) +
       Number(legal);
 
+    // Create a new budget entry
     const newBudget = new PersonalBudget({
       month,
       year,
@@ -74,6 +89,7 @@ exports.Create = async (req, res) => {
     return res.status(201).json({
       message: "Budget entry created successfully",
       budget: {
+        id: newBudget._id,  // Return the created budget's ID
         month: newBudget.month,
         year: newBudget.year,
         categories: {
@@ -106,7 +122,8 @@ exports.Create = async (req, res) => {
   }
 };
 
-// Get Budget By ID
+
+
 exports.getById = async (req, res) => {
   //#swagger.tags = ['User-PersonalBudget']
   try {
