@@ -5,6 +5,7 @@ const formatAmount = (amount) => {
   return new Intl.NumberFormat("en-IN").format(amount);
 };
 
+// Create Budget
 exports.Create = async (req, res) => {
   //#swagger.tags = ['User-PersonalBudget']
   try {
@@ -33,7 +34,6 @@ exports.Create = async (req, res) => {
       });
     }
 
-    // Ensure all values are treated as numbers for summation
     const totalExpenses =
       Number(housing) +
       Number(entertainment) +
@@ -94,13 +94,152 @@ exports.Create = async (req, res) => {
           personalCare: formatAmount(newBudget.categories.personalCare),
           legal: formatAmount(newBudget.categories.legal),
         },
-        totalExpenses: formatAmount(newBudget.totalExpenses), 
+        totalExpenses: formatAmount(newBudget.totalExpenses),
         userId: newBudget.userId,
       },
     });
   } catch (error) {
     return res.status(500).json({
       message: "Failed to create budget entry",
+      error: error.message,
+    });
+  }
+};
+
+// Get Budget By ID
+exports.getById = async (req, res) => {
+  //#swagger.tags = ['User-PersonalBudget']
+  try {
+    const { id } = req.params;
+    const budget = await PersonalBudget.findById(id);
+
+    if (!budget) {
+      return res.status(404).json({ message: "Budget not found" });
+    }
+
+    return res.status(200).json({
+      budget,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to retrieve budget",
+      error: error.message,
+    });
+  }
+};
+
+// Update Budget By ID
+exports.update = async (req, res) => {
+  //#swagger.tags = ['User-PersonalBudget']
+  try {
+    const { id } = req.params;
+    const {
+      housing,
+      entertainment,
+      transportation,
+      loans,
+      insurance,
+      taxes,
+      food,
+      savingsAndInvestments,
+      pets,
+      giftsAndDonations,
+      personalCare,
+      legal,
+    } = req.body;
+
+    const budget = await PersonalBudget.findById(id);
+    if (!budget) {
+      return res.status(404).json({ message: "Budget not found" });
+    }
+
+    const totalExpenses =
+      Number(housing) +
+      Number(entertainment) +
+      Number(transportation) +
+      Number(loans) +
+      Number(insurance) +
+      Number(taxes) +
+      Number(food) +
+      Number(savingsAndInvestments) +
+      Number(pets) +
+      Number(giftsAndDonations) +
+      Number(personalCare) +
+      Number(legal);
+
+    budget.categories = {
+      housing,
+      entertainment,
+      transportation,
+      loans,
+      insurance,
+      taxes,
+      food,
+      savingsAndInvestments,
+      pets,
+      giftsAndDonations,
+      personalCare,
+      legal,
+    };
+    budget.totalExpenses = totalExpenses;
+
+    await budget.save();
+
+    return res.status(200).json({
+      message: "Budget updated successfully",
+      budget,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to update budget",
+      error: error.message,
+    });
+  }
+};
+
+// View Budget by month, year, and userId
+exports.view = async (req, res) => {
+  //#swagger.tags = ['User-PersonalBudget']
+  try {
+    const { month, year, userId } = req.params;
+    const budget = await PersonalBudget.findOne({
+      month,
+      year,
+      userId,
+    });
+
+    if (!budget) {
+      return res.status(404).json({ message: "Budget not found" });
+    }
+
+    return res.status(200).json({
+      budget,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to retrieve budget",
+      error: error.message,
+    });
+  }
+};
+
+// Delete Budget By ID
+exports.delete = async (req, res) => {
+  //#swagger.tags = ['User-PersonalBudget']
+  try {
+    const { id } = req.params;
+    const budget = await PersonalBudget.findByIdAndDelete(id);
+
+    if (!budget) {
+      return res.status(404).json({ message: "Budget not found" });
+    }
+
+    return res.status(200).json({
+      message: "Budget deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to delete budget",
       error: error.message,
     });
   }
