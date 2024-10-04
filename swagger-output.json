@@ -766,19 +766,13 @@
         }
       }
     },
-    "/api/personal/update/{id}": {
+    "/api/personal/update": {
       "put": {
         "tags": [
           "User-PersonalBudget"
         ],
         "description": "",
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
           {
             "name": "month",
             "in": "query",

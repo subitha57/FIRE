@@ -7,7 +7,7 @@ router.post("/create", ExpensesAllocation.Create);
 
 router.get("/getById/:id", ExpensesAllocation.getById);
 
-router.put("/update/:id", ExpensesAllocation.update);
+router.put("/update", ExpensesAllocation.update);
 
 router.get("/view", ExpensesAllocation.view);
 
