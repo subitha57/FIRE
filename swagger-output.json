@@ -663,6 +663,9 @@
     },
     "/api/personal/create": {
       "post": {
+        "tags": [
+          "User-Expenses Allocation"
+        ],
         "description": "",
         "parameters": [
           {
@@ -883,7 +886,7 @@
         }
       }
     },
-    "/api/personal/delate/{id}": {
+    "/api/personal/delete/{id}": {
       "delete": {
         "tags": [
           "User-Expenses Allocation"
@@ -903,6 +906,34 @@
           },
           "404": {
             "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/personal/getall": {
+      "get": {
+        "tags": [
+          "User-Expenses Allocation"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           },
           "500": {
             "description": "Internal Server Error"

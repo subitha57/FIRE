@@ -6,6 +6,7 @@ const formatAmount = (amount) => {
 };
 
 exports.Create = async (req, res) => {
+  //#swagger.tags = ['User-Expenses Allocation']
   try {
     const {
       month,
@@ -312,6 +313,40 @@ exports.delete = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: "Failed to delete budget",
+      error: error.message,
+    });
+  }
+};
+
+exports.getAll = async (req, res) => {
+  //#swagger.tags = ['User-Expenses Allocation']
+  try {
+    const { userId, year } = req.query;
+
+    // If a userId is provided, fetch only the user's expenses, otherwise fetch all
+    let query = {};
+    if (userId) {
+      query.userId = userId;
+    }
+    if (year) {
+      query.year = year;
+    }
+
+    const budgets = await ExpensesAllocation.find(query);
+
+    if (!budgets || budgets.length === 0) {
+      return res.status(200).json({
+        message: "No budgets found for the given criteria",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Budgets retrieved successfully",
+      budgets,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to retrieve budgets",
       error: error.message,
     });
   }

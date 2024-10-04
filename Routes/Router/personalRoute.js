@@ -11,6 +11,8 @@ router.put("/update", ExpensesAllocation.update);
 
 router.get("/view", ExpensesAllocation.view);
 
-router.delete("/delate/:id", ExpensesAllocation.delete);
+router.delete("/delete/:id", ExpensesAllocation.delete);
+
+router.get('/getall', ExpensesAllocation.getAll);
 
 module.exports = router;
