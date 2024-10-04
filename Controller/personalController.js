@@ -1,4 +1,4 @@
-const PersonalBudget = require("../Model/personalModel");
+const ExpensesAllocation = require("../Model/personalModel");
 const User = require("../Model/emailModel");
 
 const formatAmount = (amount) => {
@@ -79,9 +79,9 @@ exports.Create = async (req, res) => {
         giftsAndDonations,
         personalCare,
         legal,
-        
+        totalExpenses,
       },
-      totalExpenses,
+      // totalExpenses,
       userId,
     });
 
