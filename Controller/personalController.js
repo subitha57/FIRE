@@ -79,9 +79,9 @@ exports.Create = async (req, res) => {
         giftsAndDonations,
         personalCare,
         legal,
-        totalExpenses,
+        
       },
-      // totalExpenses,
+      totalExpenses,
       userId,
     });
 
