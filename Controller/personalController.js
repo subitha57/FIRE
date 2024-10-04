@@ -79,8 +79,9 @@ exports.Create = async (req, res) => {
         giftsAndDonations,
         personalCare,
         legal,
+        totalExpenses,
       },
-      totalExpenses,
+      // totalExpenses,
       userId,
     });
 
@@ -89,7 +90,7 @@ exports.Create = async (req, res) => {
     return res.status(201).json({
       message: "Budget entry created successfully",
       budget: {
-        id: newBudget._id,  // Return the created budget's ID
+        id: newBudget._id,  
         month: newBudget.month,
         year: newBudget.year,
         categories: {
@@ -109,8 +110,9 @@ exports.Create = async (req, res) => {
           ),
           personalCare: formatAmount(newBudget.categories.personalCare),
           legal: formatAmount(newBudget.categories.legal),
+          totalExpenses: formatAmount(newBudget.totalExpenses),
         },
-        totalExpenses: formatAmount(newBudget.totalExpenses),
+        // totalExpenses: formatAmount(newBudget.totalExpenses),
         userId: newBudget.userId,
       },
     });

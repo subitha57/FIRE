@@ -227,6 +227,7 @@ const Budget = require("../Model/budgetModel");
 const PersonalBudget = require("../Model/personalModel");
 const User = require("../Model/emailModel");
 
+// Create Budget
 exports.Create = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
@@ -240,7 +241,6 @@ exports.Create = async (req, res) => {
       });
     }
 
-    // Check if a budget already exists for the given month and year
     const existingBudget = await Budget.findOne({ month, year, userId });
     if (existingBudget) {
       return res.status(200).json({
@@ -250,7 +250,6 @@ exports.Create = async (req, res) => {
 
     const totalIncome = Number(income) + Number(otherIncome || 0);
 
-    // Create budget for the selected month
     const newBudget = new Budget({
       month, // Storing month as a string (e.g., "January")
       year,
@@ -262,9 +261,8 @@ exports.Create = async (req, res) => {
 
     await newBudget.save();
 
-    // Propagate income for the entire year (only for the same year)
     const monthsOfYear = [
-      "January", "February", "March", "April", "May", "June", 
+      "January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"
     ];
 
@@ -273,7 +271,6 @@ exports.Create = async (req, res) => {
     for (let i = startMonthIndex + 1; i < monthsOfYear.length; i++) {
       const futureMonth = monthsOfYear[i];
 
-      // Check if a budget already exists for this future month in the same year
       const futureBudget = await Budget.findOne({
         month: futureMonth,
         year,
@@ -285,8 +282,8 @@ exports.Create = async (req, res) => {
           month: futureMonth,
           year,
           income: Number(income),
-          otherIncome: 0, // Default to 0 for future months (otherIncome is manually set)
-          totalIncome: Number(income), // Only income, otherIncome starts as 0
+          otherIncome: 0,
+          totalIncome: Number(income),
           userId,
         });
 
@@ -306,14 +303,13 @@ exports.Create = async (req, res) => {
   }
 };
 
-// Update the budget for a specific month and optionally propagate changes
+// Update Budget
 exports.Update = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
     const { id } = req.params;
     const { month, year, income, otherIncome, userId, propagate } = req.body;
 
-    // Check if the budget exists
     const budget = await Budget.findById(id);
     if (!budget) {
       return res.status(404).json({
@@ -321,7 +317,6 @@ exports.Update = async (req, res) => {
       });
     }
 
-    // Check if the user exists
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
@@ -331,11 +326,10 @@ exports.Update = async (req, res) => {
 
     const totalIncome = Number(income) + Number(otherIncome || 0);
 
-    // Update the budget for the specific month
     const updatedBudget = await Budget.findByIdAndUpdate(
       id,
       {
-        month, // Storing month as string
+        month,
         year,
         income: Number(income),
         otherIncome: Number(otherIncome || 0),
@@ -345,10 +339,9 @@ exports.Update = async (req, res) => {
       { new: true }
     );
 
-    // If propagate is true, update income for the remaining months in the same year
     if (propagate) {
       const monthsOfYear = [
-        "January", "February", "March", "April", "May", "June", 
+        "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
       ];
 
@@ -365,8 +358,8 @@ exports.Update = async (req, res) => {
 
         if (futureBudget) {
           await Budget.findByIdAndUpdate(futureBudget._id, {
-            income: Number(income), // Only propagate income
-            otherIncome: futureBudget.otherIncome, // Keep existing otherIncome
+            income: Number(income),
+            otherIncome: futureBudget.otherIncome,
             totalIncome: Number(income) + Number(futureBudget.otherIncome || 0),
           });
         }
@@ -385,7 +378,7 @@ exports.Update = async (req, res) => {
   }
 };
 
-// Get budget by ID
+// Get Budget by ID
 exports.getById = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
@@ -393,7 +386,7 @@ exports.getById = async (req, res) => {
 
     const budget = await Budget.findById(id);
     if (!budget) {
-      return res.status(200).json({
+      return res.status(404).json({
         message: "Budget not found",
       });
     }
@@ -410,7 +403,7 @@ exports.getById = async (req, res) => {
   }
 };
 
-// View budget by month, year, and userId
+// View Budget by Month, Year, and User
 exports.View = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
@@ -432,7 +425,11 @@ exports.View = async (req, res) => {
 
     return res.status(201).json({
       message: "Budget retrieved successfully",
-      budget,
+      budget: {
+        income: budget.income,
+        otherIncome: budget.otherIncome,
+        totalIncome: budget.totalIncome,
+      },
     });
   } catch (error) {
     return res.status(500).json({
@@ -442,9 +439,7 @@ exports.View = async (req, res) => {
   }
 };
 
-
-
-// Delete a budget entry by ID
+// Delete Budget
 exports.Delete = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
@@ -470,7 +465,7 @@ exports.Delete = async (req, res) => {
   }
 };
 
-// Calculate remaining balance by subtracting expenses from total income
+// Calculate Budget (Including Other Income)
 exports.CalculateBudget = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
@@ -508,6 +503,8 @@ exports.CalculateBudget = async (req, res) => {
 
     return res.status(200).json({
       message: "Budget calculated successfully",
+      income: budget.income,
+      otherIncome: budget.otherIncome,
       totalIncome,
       totalExpenses,
       remainingBalance,
@@ -519,3 +516,4 @@ exports.CalculateBudget = async (req, res) => {
     });
   }
 };
+
