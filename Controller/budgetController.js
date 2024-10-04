@@ -227,13 +227,13 @@ const Budget = require("../Model/budgetModel");
 const PersonalBudget = require("../Model/personalModel");
 const User = require("../Model/emailModel");
 
-// Create Budget
+
 exports.Create = async (req, res) => {
   //#swagger.tags = ['User-Budget']
   try {
     const { month, year, income, otherIncome, userId } = req.body;
 
-    // Check if the user exists
+    
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
@@ -251,7 +251,7 @@ exports.Create = async (req, res) => {
     const totalIncome = Number(income) + Number(otherIncome || 0);
 
     const newBudget = new Budget({
-      month, // Storing month as a string (e.g., "January")
+      month, 
       year,
       income: Number(income),
       otherIncome: Number(otherIncome || 0),

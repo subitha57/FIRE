@@ -110,7 +110,7 @@ exports.Create = async (req, res) => {
           ),
           personalCare: formatAmount(newBudget.categories.personalCare),
           legal: formatAmount(newBudget.categories.legal),
-          totalExpenses: formatAmount(newBudget.totalExpenses),
+          totalExpenses: formatAmount(newBudget.categories.totalExpenses),
         },
         // totalExpenses: formatAmount(newBudget.totalExpenses),
         userId: newBudget.userId,
