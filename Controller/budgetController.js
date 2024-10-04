@@ -224,7 +224,6 @@
 
 
 const Budget = require("../Model/budgetModel");
-const PersonalBudget = require("../Model/personalModel");
 const User = require("../Model/emailModel");
 
 // Create Budget
@@ -268,6 +267,7 @@ exports.Create = async (req, res) => {
 
     const startMonthIndex = monthsOfYear.indexOf(month);
 
+    // Propagate income and otherIncome to the following months as default values
     for (let i = startMonthIndex + 1; i < monthsOfYear.length; i++) {
       const futureMonth = monthsOfYear[i];
 
@@ -281,9 +281,9 @@ exports.Create = async (req, res) => {
         const budgetForFutureMonth = new Budget({
           month: futureMonth,
           year,
-          income: Number(income),
-          otherIncome: 0,
-          totalIncome: Number(income),
+          income: Number(income), // Use current income as default
+          otherIncome: Number(otherIncome || 0), // Use current otherIncome as default
+          totalIncome: Number(income) + Number(otherIncome || 0),
           userId,
         });
 
@@ -339,6 +339,7 @@ exports.Update = async (req, res) => {
       { new: true }
     );
 
+    // If propagate is true, update the income/otherIncome for future months
     if (propagate) {
       const monthsOfYear = [
         "January", "February", "March", "April", "May", "June",
@@ -347,6 +348,7 @@ exports.Update = async (req, res) => {
 
       const startMonthIndex = monthsOfYear.indexOf(month);
 
+      // Propagate updated income and otherIncome to future months
       for (let i = startMonthIndex + 1; i < monthsOfYear.length; i++) {
         const futureMonth = monthsOfYear[i];
 
@@ -359,8 +361,8 @@ exports.Update = async (req, res) => {
         if (futureBudget) {
           await Budget.findByIdAndUpdate(futureBudget._id, {
             income: Number(income),
-            otherIncome: futureBudget.otherIncome,
-            totalIncome: Number(income) + Number(futureBudget.otherIncome || 0),
+            otherIncome: Number(otherIncome || 0),
+            totalIncome: Number(income) + Number(otherIncome || 0),
           });
         }
       }
