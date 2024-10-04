@@ -227,6 +227,7 @@ exports.View = async (req, res) => {
   try {
     const { month, year, userId } = req.query;
 
+    // Find the user by userId
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
@@ -234,6 +235,7 @@ exports.View = async (req, res) => {
       });
     }
 
+    // Find the budget for the given month, year, and userId
     const budget = await Budget.findOne({ month, year, userId });
     if (!budget) {
       return res.status(200).json({
@@ -241,9 +243,11 @@ exports.View = async (req, res) => {
       });
     }
 
+    // Return the budget details along with the id
     return res.status(200).json({
       message: "Budget retrieved successfully",
       budget: {
+        id: budget._id, // Include the id field in the response
         income: budget.income,
         otherIncome: budget.otherIncome,
         totalIncome: budget.totalIncome,

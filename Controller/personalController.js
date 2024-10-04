@@ -59,6 +59,7 @@ exports.Create = async (req, res) => {
       Number(personalCare) +
       Number(legal);
 
+    // Create initial budget for the current month/year
     const newBudget = new ExpensesAllocation({
       month,
       year,
@@ -77,14 +78,60 @@ exports.Create = async (req, res) => {
         legal,
         totalExpenses,
       },
-
       userId,
     });
 
     await newBudget.save();
 
+    // Now register default for future months
+    const monthsToCreate = 12; // Limit to create future budgets (e.g., 12 months ahead)
+    let futureMonth = parseInt(month);
+    let futureYear = parseInt(year);
+
+    for (let i = 1; i <= monthsToCreate; i++) {
+      futureMonth += 1;
+
+      // Handle year change when month exceeds 12
+      if (futureMonth > 12) {
+        futureMonth = 1;
+        futureYear += 1;
+      }
+
+      // Check if budget for future month/year already exists to avoid duplication
+      const futureBudgetExists = await ExpensesAllocation.findOne({
+        month: futureMonth,
+        year: futureYear,
+        userId,
+      });
+
+      if (!futureBudgetExists) {
+        const futureBudget = new ExpensesAllocation({
+          month: futureMonth,
+          year: futureYear,
+          categories: {
+            housing,
+            entertainment,
+            transportation,
+            loans,
+            insurance,
+            taxes,
+            food,
+            savingsAndInvestments,
+            pets,
+            giftsAndDonations,
+            personalCare,
+            legal,
+            totalExpenses,
+          },
+          userId,
+        });
+
+        await futureBudget.save();
+      }
+    }
+
     return res.status(201).json({
-      message: "Budget entry created successfully",
+      message: "Budget entry created successfully for current and future months",
       budget: {
         id: newBudget._id,
         month: newBudget.month,
@@ -108,7 +155,6 @@ exports.Create = async (req, res) => {
           legal: formatAmount(newBudget.categories.legal),
           totalExpenses: formatAmount(newBudget.categories.totalExpenses),
         },
-
         userId: newBudget.userId,
       },
     });
