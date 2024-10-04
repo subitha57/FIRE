@@ -21,12 +21,16 @@ const personalSchema = new mongoose.Schema({
     pets: { type: Number, required: true },
     giftsAndDonations: { type: Number, required: true },
     personalCare: { type: Number, required: true },
-    legal: { type: Number, required: true }
+    legal: { type: Number, required: true },
+    totalExpenses: {
+      type: Number,
+      required: true,
+    },
   },
-  totalExpenses: {
-    type: Number,
-    required: true,
-  },
+  // totalExpenses: {
+  //   type: Number,
+  //   required: true,
+  // },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -38,4 +42,4 @@ const personalSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.model('PersonalBudget', personalSchema);
+module.exports = mongoose.model('ExpensesAllocation', personalSchema);

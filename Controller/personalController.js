@@ -35,7 +35,7 @@ exports.Create = async (req, res) => {
     }
 
     // Check if a budget for the same month, year, and user already exists
-    const existingBudget = await PersonalBudget.findOne({
+    const existingBudget = await ExpensesAllocation.findOne({
       month,
       year,
       userId,
@@ -63,7 +63,7 @@ exports.Create = async (req, res) => {
       Number(legal);
 
     // Create a new budget entry
-    const newBudget = new PersonalBudget({
+    const newBudget = new ExpensesAllocation({
       month,
       year,
       categories: {
@@ -130,7 +130,7 @@ exports.getById = async (req, res) => {
   //#swagger.tags = ['User-PersonalBudget']
   try {
     const { id } = req.params;
-    const budget = await PersonalBudget.findById(id);
+    const budget = await ExpensesAllocation.findById(id);
 
     if (!budget) {
       return res.status(404).json({ message: "Budget not found" });
@@ -167,7 +167,7 @@ exports.update = async (req, res) => {
       legal,
     } = req.body;
 
-    const budget = await PersonalBudget.findById(id);
+    const budget = await ExpensesAllocation.findById(id);
     if (!budget) {
       return res.status(404).json({ message: "Budget not found" });
     }
@@ -199,6 +199,7 @@ exports.update = async (req, res) => {
       giftsAndDonations,
       personalCare,
       legal,
+      
     };
     budget.totalExpenses = totalExpenses;
 
@@ -229,7 +230,7 @@ exports.view = async (req, res) => {
       });
     }
 
-    const budget = await PersonalBudget.findOne({ month, year, userId });
+    const budget = await ExpensesAllocation.findOne({ month, year, userId });
     if (!budget) {
       return res.status(200).json({
         message: "No budget found for the selected month and year",
@@ -253,7 +254,7 @@ exports.delete = async (req, res) => {
   //#swagger.tags = ['User-PersonalBudget']
   try {
     const { id } = req.params;
-    const budget = await PersonalBudget.findByIdAndDelete(id);
+    const budget = await ExpensesAllocation.findByIdAndDelete(id);
 
     if (!budget) {
       return res.status(404).json({ message: "Budget not found" });
