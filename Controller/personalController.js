@@ -6,7 +6,6 @@ const formatAmount = (amount) => {
 };
 
 exports.Create = async (req, res) => {
-  //#swagger.tags = ['User-Expenses Allocation']
   try {
     const {
       month,
@@ -59,7 +58,6 @@ exports.Create = async (req, res) => {
       Number(personalCare) +
       Number(legal);
 
-    // Create initial budget for the current month/year
     const newBudget = new ExpensesAllocation({
       month,
       year,
@@ -83,55 +81,65 @@ exports.Create = async (req, res) => {
 
     await newBudget.save();
 
-    // Now register default for future months
-    const monthsToCreate = 12; // Limit to create future budgets (e.g., 12 months ahead)
-    let futureMonth = parseInt(month);
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
+
+    let currentMonthIndex = monthNames.indexOf(month);
+    let futureMonthIndex = currentMonthIndex + 1;
     let futureYear = parseInt(year);
 
-    for (let i = 1; i <= monthsToCreate; i++) {
-      futureMonth += 1;
+    if (futureMonthIndex >= 12) {
+      futureMonthIndex = 0;
+      futureYear += 1;
+    }
 
-      // Handle year change when month exceeds 12
-      if (futureMonth > 12) {
-        futureMonth = 1;
-        futureYear += 1;
-      }
+    const futureMonth = monthNames[futureMonthIndex];
 
-      // Check if budget for future month/year already exists to avoid duplication
-      const futureBudgetExists = await ExpensesAllocation.findOne({
+    const futureBudgetExists = await ExpensesAllocation.findOne({
+      month: futureMonth,
+      year: futureYear,
+      userId,
+    });
+
+    if (!futureBudgetExists) {
+      const futureBudget = new ExpensesAllocation({
         month: futureMonth,
         year: futureYear,
+        categories: {
+          housing,
+          entertainment,
+          transportation,
+          loans,
+          insurance,
+          taxes,
+          food,
+          savingsAndInvestments,
+          pets,
+          giftsAndDonations,
+          personalCare,
+          legal,
+          totalExpenses,
+        },
         userId,
       });
 
-      if (!futureBudgetExists) {
-        const futureBudget = new ExpensesAllocation({
-          month: futureMonth,
-          year: futureYear,
-          categories: {
-            housing,
-            entertainment,
-            transportation,
-            loans,
-            insurance,
-            taxes,
-            food,
-            savingsAndInvestments,
-            pets,
-            giftsAndDonations,
-            personalCare,
-            legal,
-            totalExpenses,
-          },
-          userId,
-        });
-
-        await futureBudget.save();
-      }
+      await futureBudget.save();
     }
 
     return res.status(201).json({
-      message: "Budget entry created successfully for current and future months",
+      message: "Expenses Allocation entry created successfully",
       budget: {
         id: newBudget._id,
         month: newBudget.month,
