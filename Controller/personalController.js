@@ -147,11 +147,11 @@ exports.getById = async (req, res) => {
   }
 };
 
-// Update Budget By ID
+
 exports.update = async (req, res) => {
   //#swagger.tags = ['User-PersonalBudget']
   try {
-    const { id } = req.params;
+    const { month, year, userId } = req.query; 
     const {
       housing,
       entertainment,
@@ -167,11 +167,13 @@ exports.update = async (req, res) => {
       legal,
     } = req.body;
 
-    const budget = await ExpensesAllocation.findById(id);
+    
+    const budget = await ExpensesAllocation.findOne({ month, year, userId });
     if (!budget) {
-      return res.status(404).json({ message: "Budget not found" });
+      return res.status(404).json({ message: "Budget not found for the selected month and year" });
     }
 
+    
     const totalExpenses =
       Number(housing) +
       Number(entertainment) +
@@ -186,6 +188,7 @@ exports.update = async (req, res) => {
       Number(personalCare) +
       Number(legal);
 
+    
     budget.categories = {
       housing,
       entertainment,
@@ -199,9 +202,8 @@ exports.update = async (req, res) => {
       giftsAndDonations,
       personalCare,
       legal,
-      
+      totalExpenses,
     };
-    budget.totalExpenses = totalExpenses;
 
     await budget.save();
 
@@ -217,7 +219,7 @@ exports.update = async (req, res) => {
   }
 };
 
-// View Budget by month, year, and userId
+
 exports.view = async (req, res) => {
   //#swagger.tags = ['User-PersonalBudget']
   try {
@@ -249,7 +251,7 @@ exports.view = async (req, res) => {
   }
 };
 
-// Delete Budget By ID
+
 exports.delete = async (req, res) => {
   //#swagger.tags = ['User-PersonalBudget']
   try {

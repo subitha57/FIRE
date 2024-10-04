@@ -1,16 +1,16 @@
 const express = require("express");
 const router = express.Router();
 
-const PersonalBudget = require("../../Controller/personalController");
+const ExpensesAllocation = require("../../Controller/personalController");
 
-router.post("/create", PersonalBudget.Create);
+router.post("/create", ExpensesAllocation.Create);
 
-router.get("/getById/:id", PersonalBudget.getById);
+router.get("/getById/:id", ExpensesAllocation.getById);
 
-router.put("/update/:id", PersonalBudget.update);
+router.put("/update/:id", ExpensesAllocation.update);
 
-router.get("/view", PersonalBudget.view);
+router.get("/view", ExpensesAllocation.view);
 
-router.delete("/delate/:id", PersonalBudget.delete);
+router.delete("/delate/:id", ExpensesAllocation.delete);
 
 module.exports = router;
