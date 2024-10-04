@@ -664,7 +664,7 @@
     "/api/personal/create": {
       "post": {
         "tags": [
-          "User-PersonalBudget"
+          "User-Expenses Allocation"
         ],
         "description": "",
         "parameters": [
@@ -674,9 +674,6 @@
             "schema": {
               "type": "object",
               "properties": {
-                "month": {
-                  "example": "any"
-                },
                 "year": {
                   "example": "any"
                 },
@@ -724,9 +721,6 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "201": {
             "description": "Created"
           },
@@ -742,7 +736,7 @@
     "/api/personal/getById/{id}": {
       "get": {
         "tags": [
-          "User-PersonalBudget"
+          "User-Expenses Allocation"
         ],
         "description": "",
         "parameters": [
@@ -769,7 +763,7 @@
     "/api/personal/update": {
       "put": {
         "tags": [
-          "User-PersonalBudget"
+          "User-Expenses Allocation"
         ],
         "description": "",
         "parameters": [
@@ -850,7 +844,7 @@
     "/api/personal/view": {
       "get": {
         "tags": [
-          "User-PersonalBudget"
+          "User-Expenses Allocation"
         ],
         "description": "",
         "parameters": [
@@ -889,7 +883,7 @@
     "/api/personal/delate/{id}": {
       "delete": {
         "tags": [
-          "User-PersonalBudget"
+          "User-Expenses Allocation"
         ],
         "description": "",
         "parameters": [
