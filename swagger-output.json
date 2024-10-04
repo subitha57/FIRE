@@ -580,6 +580,9 @@
                 },
                 "userId": {
                   "example": "any"
+                },
+                "propagate": {
+                  "example": "any"
                 }
               }
             }
