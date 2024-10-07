@@ -33,55 +33,6 @@ exports.Create = async (req, res) => {
       });
     }
 
-    const existingBudget = await ExpensesAllocation.findOne({
-      month,
-      year,
-      userId,
-    });
-
-    if (existingBudget) {
-      return res.status(200).json({
-        message: `A budget for the month ${month} and year ${year} already exists for this user.`,
-      });
-    }
-
-    const totalExpenses =
-      Number(housing) +
-      Number(entertainment) +
-      Number(transportation) +
-      Number(loans) +
-      Number(insurance) +
-      Number(taxes) +
-      Number(food) +
-      Number(savingsAndInvestments) +
-      Number(pets) +
-      Number(giftsAndDonations) +
-      Number(personalCare) +
-      Number(legal);
-
-    const newBudget = new ExpensesAllocation({
-      month,
-      year,
-      categories: {
-        housing,
-        entertainment,
-        transportation,
-        loans,
-        insurance,
-        taxes,
-        food,
-        savingsAndInvestments,
-        pets,
-        giftsAndDonations,
-        personalCare,
-        legal,
-        totalExpenses,
-      },
-      userId,
-    });
-
-    await newBudget.save();
-
     const monthNames = [
       "January",
       "February",
@@ -98,26 +49,46 @@ exports.Create = async (req, res) => {
     ];
 
     let currentMonthIndex = monthNames.indexOf(month);
-    let futureMonthIndex = currentMonthIndex + 1;
-    let futureYear = parseInt(year);
-
-    if (futureMonthIndex >= 12) {
-      futureMonthIndex = 0;
-      futureYear += 1;
+    if (currentMonthIndex === -1) {
+      return res.status(400).json({ message: "Invalid month provided" });
     }
 
-    const futureMonth = monthNames[futureMonthIndex];
+    const totalExpenses =
+      Number(housing) +
+      Number(entertainment) +
+      Number(transportation) +
+      Number(loans) +
+      Number(insurance) +
+      Number(taxes) +
+      Number(food) +
+      Number(savingsAndInvestments) +
+      Number(pets) +
+      Number(giftsAndDonations) +
+      Number(personalCare) +
+      Number(legal);
 
-    const futureBudgetExists = await ExpensesAllocation.findOne({
-      month: futureMonth,
-      year: futureYear,
-      userId,
-    });
+    // Array to store all the created budgets
+    const createdBudgets = [];
 
-    if (!futureBudgetExists) {
-      const futureBudget = new ExpensesAllocation({
+    // Iterate from the current month until December (in the same year)
+    for (let i = currentMonthIndex; i < 12; i++) {
+      const futureMonth = monthNames[i];
+
+      // Check if a budget already exists for this month and year
+      const existingBudget = await ExpensesAllocation.findOne({
         month: futureMonth,
-        year: futureYear,
+        year,
+        userId,
+      });
+
+      if (existingBudget) {
+        continue; // If a budget already exists, skip to the next month
+      }
+
+      // Create and save a new budget entry for the current month
+      const newBudget = new ExpensesAllocation({
+        month: futureMonth,
+        year,
         categories: {
           housing,
           entertainment,
@@ -136,36 +107,41 @@ exports.Create = async (req, res) => {
         userId,
       });
 
-      await futureBudget.save();
+      await newBudget.save();
+      createdBudgets.push(newBudget); // Push the created budget into the array
     }
 
+    // Check if any budget was created
+    if (createdBudgets.length === 0) {
+      return res.status(400).json({
+        message: "Budgets for all months in the year already exist",
+      });
+    }
+
+    // Return all created budgets in the response
     return res.status(201).json({
-      message: "Expenses Allocation entry created successfully",
-      budget: {
-        id: newBudget._id,
-        month: newBudget.month,
-        year: newBudget.year,
+      message: "Expenses Allocation entries created successfully",
+      budgets: createdBudgets.map((budget) => ({
+        id: budget._id,
+        month: budget.month,
+        year: budget.year,
         categories: {
-          housing: formatAmount(newBudget.categories.housing),
-          entertainment: formatAmount(newBudget.categories.entertainment),
-          transportation: formatAmount(newBudget.categories.transportation),
-          loans: formatAmount(newBudget.categories.loans),
-          insurance: formatAmount(newBudget.categories.insurance),
-          taxes: formatAmount(newBudget.categories.taxes),
-          food: formatAmount(newBudget.categories.food),
-          savingsAndInvestments: formatAmount(
-            newBudget.categories.savingsAndInvestments
-          ),
-          pets: formatAmount(newBudget.categories.pets),
-          giftsAndDonations: formatAmount(
-            newBudget.categories.giftsAndDonations
-          ),
-          personalCare: formatAmount(newBudget.categories.personalCare),
-          legal: formatAmount(newBudget.categories.legal),
-          totalExpenses: formatAmount(newBudget.categories.totalExpenses),
+          housing: formatAmount(budget.categories.housing),
+          entertainment: formatAmount(budget.categories.entertainment),
+          transportation: formatAmount(budget.categories.transportation),
+          loans: formatAmount(budget.categories.loans),
+          insurance: formatAmount(budget.categories.insurance),
+          taxes: formatAmount(budget.categories.taxes),
+          food: formatAmount(budget.categories.food),
+          savingsAndInvestments: formatAmount(budget.categories.savingsAndInvestments),
+          pets: formatAmount(budget.categories.pets),
+          giftsAndDonations: formatAmount(budget.categories.giftsAndDonations),
+          personalCare: formatAmount(budget.categories.personalCare),
+          legal: formatAmount(budget.categories.legal),
+          totalExpenses: formatAmount(budget.categories.totalExpenses),
         },
-        userId: newBudget.userId,
-      },
+        userId: budget.userId,
+      })),
     });
   } catch (error) {
     return res.status(500).json({
@@ -174,6 +150,7 @@ exports.Create = async (req, res) => {
     });
   }
 };
+
 
 exports.getById = async (req, res) => {
   //#swagger.tags = ['User-Expenses Allocation']
@@ -323,7 +300,6 @@ exports.getAll = async (req, res) => {
   try {
     const { userId, year } = req.query;
 
-    // If a userId is provided, fetch only the user's expenses, otherwise fetch all
     let query = {};
     if (userId) {
       query.userId = userId;
