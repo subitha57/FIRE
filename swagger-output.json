@@ -751,6 +751,9 @@
     },
     "/api/reality/create": {
       "post": {
+        "tags": [
+          "Reality-IncomeSource"
+        ],
         "description": "",
         "parameters": [
           {
@@ -793,6 +796,9 @@
     },
     "/api/reality/getById/{id}": {
       "get": {
+        "tags": [
+          "Reality-IncomeSource"
+        ],
         "description": "",
         "parameters": [
           {
@@ -817,6 +823,9 @@
     },
     "/api/reality/view": {
       "get": {
+        "tags": [
+          "Reality-IncomeSource"
+        ],
         "description": "",
         "parameters": [
           {
@@ -850,6 +859,9 @@
     },
     "/api/reality/update/{id}": {
       "put": {
+        "tags": [
+          "Reality-IncomeSource"
+        ],
         "description": "",
         "parameters": [
           {
@@ -901,6 +913,9 @@
     },
     "/api/reality/delete/{id}": {
       "delete": {
+        "tags": [
+          "Reality-IncomeSource"
+        ],
         "description": "",
         "parameters": [
           {
@@ -925,6 +940,9 @@
     },
     "/api/reality/calculate": {
       "get": {
+        "tags": [
+          "Reality-IncomeSource"
+        ],
         "description": "",
         "parameters": [
           {

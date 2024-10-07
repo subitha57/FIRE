@@ -2,6 +2,7 @@ const RealityIncome = require('../../Model/Reality/budgetIncomeModel');
 const User = require('../../Model/emailModel');
 
 exports.createRealityIncome = async (req, res) => {
+    //#swagger.tags = ['Reality-IncomeSource']
     try {
         const { month, year, income, otherIncome = [], userId } = req.body;
 
@@ -35,6 +36,7 @@ exports.createRealityIncome = async (req, res) => {
 };
 
 exports.Update = async (req, res) => {
+    //#swagger.tags = ['Reality-IncomeSource']
     try {
         const { id } = req.params;
         const {
@@ -118,6 +120,7 @@ exports.Update = async (req, res) => {
 };
 
 exports.getById = async (req, res) => {
+    //#swagger.tags = ['Reality-IncomeSource']
     try {
         const { id } = req.params;
 
@@ -139,6 +142,7 @@ exports.getById = async (req, res) => {
 };
 
 exports.View = async (req, res) => {
+    //#swagger.tags = ['Reality-IncomeSource']
     try {
         const { month, year, userId } = req.query;
 
@@ -170,6 +174,7 @@ exports.View = async (req, res) => {
 };
 
 exports.Delete = async (req, res) => {
+    //#swagger.tags = ['Reality-IncomeSource']
     try {
         const { id } = req.params;
 
@@ -192,6 +197,7 @@ exports.Delete = async (req, res) => {
 };
 
 exports.CalculateBudget = async (req, res) => {
+    //#swagger.tags = ['Reality-IncomeSource']
     try {
         const { month, year, userId } = req.query;
 
