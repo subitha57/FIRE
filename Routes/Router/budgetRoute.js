@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const Budget = require('../../Controller/Budget Plan/budgetController');
+const Budget = require('../../Controller/BudgetPlan/budgetController');
 
 router.post('/create', Budget.Create);
 router.get('/getById/:id',Budget.getById);

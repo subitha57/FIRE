@@ -435,16 +435,57 @@
     },
     "/api/budget/create": {
       "post": {
+        "tags": [
+          "User-Budget"
+        ],
         "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "month": {
+                  "example": "any"
+                },
+                "year": {
+                  "example": "any"
+                },
+                "income": {
+                  "example": "any"
+                },
+                "otherIncome": {
+                  "example": "any"
+                },
+                "userId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/api/budget/getById/{id}": {
       "get": {
+        "tags": [
+          "User-Budget"
+        ],
         "description": "",
         "parameters": [
           {
@@ -455,24 +496,59 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/api/budget/view": {
       "get": {
+        "tags": [
+          "User-Budget"
+        ],
         "description": "",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/api/budget/update/{id}": {
       "put": {
+        "tags": [
+          "User-Budget"
+        ],
         "description": "",
         "parameters": [
           {
@@ -480,17 +556,53 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "month": {
+                  "example": "any"
+                },
+                "year": {
+                  "example": "any"
+                },
+                "income": {
+                  "example": "any"
+                },
+                "otherIncome": {
+                  "example": "any"
+                },
+                "userId": {
+                  "example": "any"
+                },
+                "propagate": {
+                  "example": "any"
+                }
+              }
+            }
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "201": {
+            "description": "Created"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/api/budget/delete/{id}": {
       "delete": {
+        "tags": [
+          "User-Budget"
+        ],
         "description": "",
         "parameters": [
           {
@@ -501,34 +613,137 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/api/budget/calculate": {
       "get": {
+        "tags": [
+          "User-Budget"
+        ],
         "description": "",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/api/personal/create": {
       "post": {
+        "tags": [
+          "User-Expenses Allocation"
+        ],
         "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "month": {
+                  "example": "any"
+                },
+                "year": {
+                  "example": "any"
+                },
+                "housing": {
+                  "example": "any"
+                },
+                "entertainment": {
+                  "example": "any"
+                },
+                "transportation": {
+                  "example": "any"
+                },
+                "loans": {
+                  "example": "any"
+                },
+                "insurance": {
+                  "example": "any"
+                },
+                "taxes": {
+                  "example": "any"
+                },
+                "food": {
+                  "example": "any"
+                },
+                "savingsAndInvestments": {
+                  "example": "any"
+                },
+                "pets": {
+                  "example": "any"
+                },
+                "giftsAndDonations": {
+                  "example": "any"
+                },
+                "personalCare": {
+                  "example": "any"
+                },
+                "legal": {
+                  "example": "any"
+                },
+                "userId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
-          "default": {
-            "description": ""
+          "201": {
+            "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/api/personal/getById/{id}": {
       "get": {
+        "tags": [
+          "User-Expenses Allocation"
+        ],
         "description": "",
         "parameters": [
           {
@@ -539,14 +754,23 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/api/personal/update/{id}": {
       "put": {
+        "tags": [
+          "User-Expenses Allocation"
+        ],
         "description": "",
         "parameters": [
           {
@@ -554,27 +778,122 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "month": {
+                  "example": "any"
+                },
+                "year": {
+                  "example": "any"
+                },
+                "housing": {
+                  "example": "any"
+                },
+                "entertainment": {
+                  "example": "any"
+                },
+                "transportation": {
+                  "example": "any"
+                },
+                "loans": {
+                  "example": "any"
+                },
+                "insurance": {
+                  "example": "any"
+                },
+                "taxes": {
+                  "example": "any"
+                },
+                "food": {
+                  "example": "any"
+                },
+                "savingsAndInvestments": {
+                  "example": "any"
+                },
+                "pets": {
+                  "example": "any"
+                },
+                "giftsAndDonations": {
+                  "example": "any"
+                },
+                "personalCare": {
+                  "example": "any"
+                },
+                "legal": {
+                  "example": "any"
+                },
+                "userId": {
+                  "example": "any"
+                }
+              }
+            }
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/api/personal/view": {
       "get": {
+        "tags": [
+          "User-Expenses Allocation"
+        ],
         "description": "",
+        "parameters": [
+          {
+            "name": "month",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "userId",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "201": {
+            "description": "Created"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/api/personal/delete/{id}": {
       "delete": {
+        "tags": [
+          "User-Expenses Allocation"
+        ],
         "description": "",
         "parameters": [
           {
@@ -585,18 +904,42 @@
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/api/personal/getall": {
       "get": {
+        "tags": [
+          "User-Expenses Allocation"
+        ],
         "description": "",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
