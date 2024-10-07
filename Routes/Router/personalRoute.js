@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const ExpensesAllocation = require("../../Controller/personalController");
+const ExpensesAllocation = require("../../Controller/Budget Plan/expensesallocation");
 
 router.post("/create", ExpensesAllocation.Create);
 

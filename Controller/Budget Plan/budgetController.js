@@ -1,6 +1,6 @@
-const Budget = require("../Model/budgetModel");
-const ExpensesAllocation = require("../Model/personalModel");
-const User = require("../Model/emailModel");
+const Budget = require("../../Model/budgetModel");
+const ExpensesAllocation = require("../../Model/personalModel");
+const User = require("../../Model/emailModel");
 
 exports.Create = async (req, res) => {
   //#swagger.tags = ['User-Budget']

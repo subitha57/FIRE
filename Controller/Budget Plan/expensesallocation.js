@@ -1,5 +1,5 @@
-const ExpensesAllocation = require("../Model/personalModel");
-const User = require("../Model/emailModel");
+const ExpensesAllocation = require("../../Model/personalModel");
+const User = require("../../Model/emailModel");
 
 const formatAmount = (amount) => {
   return new Intl.NumberFormat("en-IN").format(amount);

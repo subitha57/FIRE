@@ -27,10 +27,7 @@ const personalSchema = new mongoose.Schema({
       required: true,
     },
   },
-  // totalExpenses: {
-  //   type: Number,
-  //   required: true,
-  // },
+  
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

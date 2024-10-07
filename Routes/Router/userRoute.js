@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const Profile = require("../../Controller/userController");
+const Profile = require("../../Controller/Login/userController");
 
 router.post("/create", Profile.Create);
 router.get('/getById/:profile_id',Profile.getById);

@@ -1,5 +1,5 @@
-const User = require("../Model/emailModel");
-const FireQuestion = require("../Model/fireModel");
+const User = require("../../Model/emailModel");
+const FireQuestion = require("../../Model/fireModel");
 
 function formatNumberWithCommas(number) {
   const numStr = number.toString();

@@ -1,5 +1,5 @@
-const Profile = require("../Model/userModel");
-const User = require("../Model/emailModel");
+const Profile = require("../../Model/userModel");
+const User = require("../../Model/emailModel");
 
 exports.Create = async (req, res) => {
   //#swagger.tags = ['User-Profile']
