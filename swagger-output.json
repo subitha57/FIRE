@@ -766,7 +766,7 @@
         }
       }
     },
-    "/api/personal/update": {
+    "/api/personal/update/{id}": {
       "put": {
         "tags": [
           "User-Expenses Allocation"
@@ -774,18 +774,9 @@
         "description": "",
         "parameters": [
           {
-            "name": "month",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "year",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "userId",
-            "in": "query",
+            "name": "id",
+            "in": "path",
+            "required": true,
             "type": "string"
           },
           {
@@ -794,6 +785,12 @@
             "schema": {
               "type": "object",
               "properties": {
+                "month": {
+                  "example": "any"
+                },
+                "year": {
+                  "example": "any"
+                },
                 "housing": {
                   "example": "any"
                 },
@@ -829,6 +826,9 @@
                 },
                 "legal": {
                   "example": "any"
+                },
+                "userId": {
+                  "example": "any"
                 }
               }
             }
@@ -837,6 +837,9 @@
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "403": {
+            "description": "Forbidden"
           },
           "404": {
             "description": "Not Found"

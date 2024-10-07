@@ -67,14 +67,11 @@ exports.Create = async (req, res) => {
       Number(personalCare) +
       Number(legal);
 
-    // Array to store all the created budgets
     const createdBudgets = [];
 
-    // Iterate from the current month until December (in the same year)
     for (let i = currentMonthIndex; i < 12; i++) {
       const futureMonth = monthNames[i];
 
-      // Check if a budget already exists for this month and year
       const existingBudget = await ExpensesAllocation.findOne({
         month: futureMonth,
         year,
@@ -82,10 +79,9 @@ exports.Create = async (req, res) => {
       });
 
       if (existingBudget) {
-        continue; // If a budget already exists, skip to the next month
+        continue;
       }
 
-      // Create and save a new budget entry for the current month
       const newBudget = new ExpensesAllocation({
         month: futureMonth,
         year,
@@ -108,17 +104,15 @@ exports.Create = async (req, res) => {
       });
 
       await newBudget.save();
-      createdBudgets.push(newBudget); // Push the created budget into the array
+      createdBudgets.push(newBudget);
     }
 
-    // Check if any budget was created
     if (createdBudgets.length === 0) {
       return res.status(400).json({
         message: "Budgets for all months in the year already exist",
       });
     }
 
-    // Return all created budgets in the response
     return res.status(201).json({
       message: "Expenses Allocation entries created successfully",
       budgets: createdBudgets.map((budget) => ({
@@ -133,7 +127,9 @@ exports.Create = async (req, res) => {
           insurance: formatAmount(budget.categories.insurance),
           taxes: formatAmount(budget.categories.taxes),
           food: formatAmount(budget.categories.food),
-          savingsAndInvestments: formatAmount(budget.categories.savingsAndInvestments),
+          savingsAndInvestments: formatAmount(
+            budget.categories.savingsAndInvestments
+          ),
           pets: formatAmount(budget.categories.pets),
           giftsAndDonations: formatAmount(budget.categories.giftsAndDonations),
           personalCare: formatAmount(budget.categories.personalCare),
@@ -150,7 +146,6 @@ exports.Create = async (req, res) => {
     });
   }
 };
-
 
 exports.getById = async (req, res) => {
   //#swagger.tags = ['User-Expenses Allocation']
@@ -176,8 +171,10 @@ exports.getById = async (req, res) => {
 exports.update = async (req, res) => {
   //#swagger.tags = ['User-Expenses Allocation']
   try {
-    const { month, year, userId } = req.query;
+    const { id } = req.params;
     const {
+      month,
+      year,
       housing,
       entertainment,
       transportation,
@@ -190,15 +187,25 @@ exports.update = async (req, res) => {
       giftsAndDonations,
       personalCare,
       legal,
+      userId,
     } = req.body;
 
-    const budget = await ExpensesAllocation.findOne({ month, year, userId });
+    const budget = await ExpensesAllocation.findById(id);
+
     if (!budget) {
-      return res
-        .status(404)
-        .json({ message: "Budget not found for the selected month and year" });
+      return res.status(404).json({
+        message: "Budget not found",
+      });
     }
 
+    // Check if the userId matches the userId of the budget entry
+    if (budget.userId.toString() !== userId) {
+      return res.status(403).json({
+        message: "Unauthorized: You cannot update this budget",
+      });
+    }
+
+    // Calculate the updated total expenses
     const totalExpenses =
       Number(housing) +
       Number(entertainment) +
@@ -213,21 +220,22 @@ exports.update = async (req, res) => {
       Number(personalCare) +
       Number(legal);
 
-    budget.categories = {
-      housing,
-      entertainment,
-      transportation,
-      loans,
-      insurance,
-      taxes,
-      food,
-      savingsAndInvestments,
-      pets,
-      giftsAndDonations,
-      personalCare,
-      legal,
-      totalExpenses,
-    };
+    // Update the budget entry with the new data
+    budget.month = month || budget.month;
+    budget.year = year || budget.year;
+    budget.categories.housing = housing || budget.categories.housing;
+    budget.categories.entertainment = entertainment || budget.categories.entertainment;
+    budget.categories.transportation = transportation || budget.categories.transportation;
+    budget.categories.loans = loans || budget.categories.loans;
+    budget.categories.insurance = insurance || budget.categories.insurance;
+    budget.categories.taxes = taxes || budget.categories.taxes;
+    budget.categories.food = food || budget.categories.food;
+    budget.categories.savingsAndInvestments = savingsAndInvestments || budget.categories.savingsAndInvestments;
+    budget.categories.pets = pets || budget.categories.pets;
+    budget.categories.giftsAndDonations = giftsAndDonations || budget.categories.giftsAndDonations;
+    budget.categories.personalCare = personalCare || budget.categories.personalCare;
+    budget.categories.legal = legal || budget.categories.legal;
+    budget.categories.totalExpenses = totalExpenses;
 
     await budget.save();
 
@@ -263,6 +271,7 @@ exports.view = async (req, res) => {
     }
 
     return res.status(201).json({
+      id: budget._id,
       message: "Budget retrieved successfully",
       budget,
     });
