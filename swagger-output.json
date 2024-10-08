@@ -1319,6 +1319,9 @@
     },
     "/api/realityexpenses/expenses": {
       "post": {
+        "tags": [
+          "Reality-Expenses"
+        ],
         "description": "",
         "parameters": [
           {
@@ -1358,6 +1361,9 @@
     },
     "/api/realityexpenses/update/{id}": {
       "put": {
+        "tags": [
+          "Reality-Expenses"
+        ],
         "description": "",
         "parameters": [
           {
@@ -1400,6 +1406,9 @@
     },
     "/api/realityexpenses/getbyid/{id}": {
       "get": {
+        "tags": [
+          "Reality-Expenses"
+        ],
         "description": "",
         "parameters": [
           {
@@ -1424,6 +1433,9 @@
     },
     "/api/realityexpenses/expenses/user/{userId}": {
       "get": {
+        "tags": [
+          "Reality-Expenses"
+        ],
         "description": "",
         "parameters": [
           {
@@ -1448,6 +1460,9 @@
     },
     "/api/realityexpenses/delete/{id}": {
       "delete": {
+        "tags": [
+          "Reality-Expenses"
+        ],
         "description": "",
         "parameters": [
           {
