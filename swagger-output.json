@@ -1362,33 +1362,8 @@
         }
       }
     },
-    "/api/realityexpenses/expenses/{id}": {
+    "/api/realityexpenses/getbyid/{id}": {
       "get": {
-        "tags": [
-          "Reality-Expenses"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "delete": {
         "tags": [
           "Reality-Expenses"
         ],
@@ -1450,6 +1425,33 @@
                 }
               }
             }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/realityexpenses/delete/{id}": {
+      "delete": {
+        "tags": [
+          "Reality-Expenses"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
           }
         ],
         "responses": {

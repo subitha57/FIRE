@@ -5,10 +5,10 @@ const Expenses = require('../../Controller/RealityPage/RealityExpenses');
 
 router.post("/create", Expenses.Create);
 
-router.get('/expenses/:id', Expenses.getById);
+router.get('/getbyid/:id', Expenses.getById);
 
 router.put('/update/:id', Expenses.Update);
 
-router.delete('/expenses/:id', Expenses.Delete);
+router.delete('/delete/:id', Expenses.Delete);
 
 module.exports = router;

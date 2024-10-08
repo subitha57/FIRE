@@ -19,12 +19,11 @@ exports.Create = async (req, res) => {
       year,
     });
 
-    const savedExpense = await newExpense.save();
+    await newExpense.save();
 
     res.status(201).json({
       message: "Expense added successfully",
-      expenseId: savedExpense._id,
-      expense: savedExpense,
+      newExpense,
     });
   } catch (err) {
     res.status(500).json({
