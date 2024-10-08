@@ -1105,10 +1105,16 @@
             "schema": {
               "type": "object",
               "properties": {
+                "userId": {
+                  "example": "any"
+                },
                 "month": {
                   "example": "any"
                 },
                 "year": {
+                  "example": "any"
+                },
+                "date": {
                   "example": "any"
                 },
                 "income": {
@@ -1116,17 +1122,20 @@
                 },
                 "otherIncome": {
                   "example": "any"
-                },
-                "userId": {
-                  "example": "any"
                 }
               }
             }
           }
         ],
         "responses": {
+          "200": {
+            "description": "OK"
+          },
           "201": {
             "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
           },
           "404": {
             "description": "Not Found"
@@ -1137,7 +1146,7 @@
         }
       }
     },
-    "/api/reality/getById/{id}": {
+    "/api/reality/getbyid/{id}": {
       "get": {
         "tags": [
           "Reality-IncomeSource"
@@ -1148,42 +1157,6 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/reality/view": {
-      "get": {
-        "tags": [
-          "Reality-IncomeSource"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "month",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "year",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "userId",
-            "in": "query",
             "type": "string"
           }
         ],
@@ -1219,22 +1192,10 @@
             "schema": {
               "type": "object",
               "properties": {
-                "month": {
-                  "example": "any"
-                },
-                "year": {
-                  "example": "any"
-                },
                 "income": {
                   "example": "any"
                 },
                 "otherIncome": {
-                  "example": "any"
-                },
-                "userId": {
-                  "example": "any"
-                },
-                "propagate": {
                   "example": "any"
                 }
               }
@@ -1242,8 +1203,8 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created"
+          "200": {
+            "description": "OK"
           },
           "404": {
             "description": "Not Found"
@@ -1281,7 +1242,7 @@
         }
       }
     },
-    "/api/reality/calculate": {
+    "/api/reality/view": {
       "get": {
         "tags": [
           "Reality-IncomeSource"
@@ -1289,17 +1250,17 @@
         "description": "",
         "parameters": [
           {
+            "name": "userId",
+            "in": "query",
+            "type": "string"
+          },
+          {
             "name": "month",
             "in": "query",
             "type": "string"
           },
           {
             "name": "year",
-            "in": "query",
-            "type": "string"
-          },
-          {
-            "name": "userId",
             "in": "query",
             "type": "string"
           }

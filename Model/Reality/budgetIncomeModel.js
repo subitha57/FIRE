@@ -1,34 +1,37 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
-const realityIncomeSchema = new mongoose.Schema({
+const realityIncomeSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: String,
+      required: true,
+    },
     month: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     year: {
-        type: Number,
-        required: true,
+      type: String,
+      required: true,
+    },
+    date: { 
+        type: String, 
+        required: true 
     },
     income: {
-        type: Number,
-        required: true,
+      type: String,
+      required: true,
     },
     otherIncome: {
-        type: [{ 
-            source: String, 
-            amount: Number 
-        }],
-        default: [],
+      type: Array,
+      required: true,
     },
     totalIncome: {
-        type: Number,
-        required: true,
+      type: String,
+      required: true,
     },
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-    },
-}, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
-module.exports = mongoose.model('RealityIncome', realityIncomeSchema);
+module.exports = mongoose.model("RealityIncome", realityIncomeSchema);
