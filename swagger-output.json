@@ -1317,83 +1317,18 @@
         }
       }
     },
-    "/api/realityexpenses/create": {
+    "/api/realityexpenses/expenses": {
       "post": {
-        "tags": [
-          "Reality-Expenses"
-        ],
         "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "example": "any"
-                },
-                "data": {
-                  "example": "any"
-                },
-                "userId": {
-                  "example": "any"
-                },
-                "month": {
-                  "example": "any"
-                },
-                "year": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/realityexpenses/getbyid/{id}": {
-      "get": {
-        "tags": [
-          "Reality-Expenses"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "description": ""
           }
         }
       }
     },
     "/api/realityexpenses/update/{id}": {
       "put": {
-        "tags": [
-          "Reality-Expenses"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1401,50 +1336,53 @@
             "in": "path",
             "required": true,
             "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "example": "any"
-                },
-                "data": {
-                  "example": "any"
-                },
-                "userId": {
-                  "example": "any"
-                },
-                "month": {
-                  "example": "any"
-                },
-                "year": {
-                  "example": "any"
-                }
-              }
-            }
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/realityexpenses/getbyid/{id}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/realityexpenses/expenses/user/{userId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": ""
           }
         }
       }
     },
     "/api/realityexpenses/delete/{id}": {
       "delete": {
-        "tags": [
-          "Reality-Expenses"
-        ],
         "description": "",
         "parameters": [
           {
@@ -1455,14 +1393,8 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
+          "default": {
+            "description": ""
           }
         }
       }

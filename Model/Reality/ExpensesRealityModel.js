@@ -1,31 +1,22 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-const expenseSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: true,
-    },
-    data: {
-      type: Map,
-      of: String,
-      required: true,
-    },
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    month: {
-      type: String,
-      required: true,
-    },
-    year: {
-      type: String,
-      required: true,
-    },
-  },
-  { timestamps: true }
-);
+// Define the schema for an expense
+const expenseSchema = new Schema({
+  name: { type: String, required: true },
+  date: { type: String, required: true },  // Consider using Date type if preferred
+  userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+  data: {
+    rent: { type: String },
+    phone: { type: String },
+    key: { type: String },
+    others: {
+      key: { type: String }
+    }
+  }
+}, { timestamps: true });
 
-module.exports = mongoose.model("Expenses", expenseSchema);
+// Create the model from the schema
+const Expense = mongoose.model('Expense', expenseSchema);
+
+module.exports = Expense;
