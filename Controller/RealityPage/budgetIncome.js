@@ -2,74 +2,76 @@ const Income = require("../../Model/Reality/budgetIncomeModel");
 const User = require("../../Model/emailModel");
 
 exports.createIncome = async (req, res) => {
-  //#swagger.tags = ['Reality-IncomeSource']
-  const { userId, month, year, date, income, otherIncome } = req.body;
-
-  const user = await User.findById(userId);
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
-
-  if (!userId || !month || !year || !date || !income || !otherIncome) {
-    return res.status(400).json({
-      success: false,
-      message: "All fields are required.",
-    });
-  }
-
-  try {
-    const existingIncome = await Income.findOne({ userId, month, year });
-    if (existingIncome) {
-      return res.status(200).json({
+    //#swagger.tags = ['Reality-IncomeSource']
+    const { userId, month, year, date, income, otherIncome } = req.body;
+  
+    // Validate fields
+    if (!userId || !month || !year || !date || !income || !Array.isArray(otherIncome)) {
+      return res.status(400).json({
         success: false,
-        message: "Income for this month and year already exists.",
+        message: "All fields are required, and otherIncome should be an array.",
       });
     }
-
-    const otherIncomeValues = otherIncome.map((item) => {
-      return parseFloat(Object.values(item)[0]) || 0;
-    });
-    const totalOtherIncome = otherIncomeValues.reduce(
-      (acc, curr) => acc + curr,
-      0
-    );
-
-    const totalIncomeValue =
-      parseFloat(income.replace(/,/g, "")) + totalOtherIncome;
-
-    const newIncome = new Income({
-      userId,
-      month,
-      year,
-      date,
-      income,
-      otherIncome,
-      totalIncome: totalIncomeValue.toString(),
-    });
-
-    await newIncome.save();
-
-    return res.status(201).json({
-      success: true,
-      message: "Reality income data stored successfully",
-      _id: newIncome._id,
-      userId: newIncome.userId,
-      month: newIncome.month,
-      year: newIncome.year,
-      date: newIncome.date,
-      income: newIncome.income,
-      otherIncome: newIncome.otherIncome,
-      totalIncome: newIncome.totalIncome,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Server error",
-      error: error.message,
-    });
-  }
-};
-
+  
+    // Find user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+  
+    try {
+      // Check if income already exists for the month and year
+      const existingIncome = await Income.findOne({ userId, month, year });
+      if (existingIncome) {
+        return res.status(200).json({
+          success: false,
+          message: "Income for this month and year already exists.",
+        });
+      }
+  
+      // Calculate total otherIncome
+      const totalOtherIncome = otherIncome.reduce((acc, item) => {
+        const incomeValue = parseFloat(Object.values(item)[0]) || 0;
+        return acc + incomeValue;
+      }, 0);
+  
+      // Parse the main income and calculate total income
+      const totalIncomeValue = parseFloat(income.replace(/,/g, "")) + totalOtherIncome;
+  
+      // Save new income entry
+      const newIncome = new Income({
+        userId,
+        month, // Should be validated as a string (e.g., 'January') or number (e.g., 1)
+        year,
+        date,
+        income,
+        otherIncome, // Should be an array of objects: [{ source: 'x', amount: 'y' }]
+        totalIncome: totalIncomeValue.toString(),
+      });
+  
+      await newIncome.save();
+  
+      return res.status(201).json({
+        success: true,
+        message: "Reality income data stored successfully",
+        _id: newIncome._id,
+        userId: newIncome.userId,
+        month: newIncome.month,
+        year: newIncome.year,
+        date: newIncome.date,
+        income: newIncome.income,
+        otherIncome: newIncome.otherIncome,
+        totalIncome: newIncome.totalIncome,
+      });
+    } catch (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Server error",
+        error: error.message,
+      });
+    }
+  };
+  
 // Get Income by ID
 exports.getIncomeById = async (req, res) => {
     //#swagger.tags = ['Reality-IncomeSource']
