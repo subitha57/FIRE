@@ -2,84 +2,73 @@ const Income = require("../../Model/Reality/budgetIncomeModel");
 const User = require("../../Model/emailModel");
 
 exports.createIncome = async (req, res) => {
-    //#swagger.tags = ['Reality-IncomeSource']
-    const { userId, month, year, date, income, otherIncome } = req.body;
-  
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-  
-    if (!userId || !month || !year || !date || !income) {
-      return res.status(400).json({
+  //#swagger.tags = ['Reality-IncomeSource']
+  const { userId, month, year, date, income, otherIncome } = req.body;
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  if (!userId || !month || !year || !date || !income || !otherIncome) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required.",
+    });
+  }
+
+  try {
+    const existingIncome = await Income.findOne({ userId, month, year });
+    if (existingIncome) {
+      return res.status(200).json({
         success: false,
-        message: "All required fields must be provided.",
+        message: "Income for this month and year already exists.",
       });
     }
-  
-    try {
-      const existingIncome = await Income.findOne({ userId, month, year });
-      if (existingIncome) {
-        return res.status(200).json({
-          success: false,
-          message: "Income for this month and year already exists.",
-        });
-      }
-  
-      // Initialize totalOtherIncome as 0
-      let totalOtherIncome = 0;
-  
-      // Check if otherIncome is provided and not empty
-      if (otherIncome && Array.isArray(otherIncome) && otherIncome.length > 0) {
-        // Extract values from otherIncome and calculate totalOtherIncome
-        const otherIncomeValues = otherIncome.map((item) => {
-          return parseFloat(Object.values(item)[0]) || 0;
-        });
-        totalOtherIncome = otherIncomeValues.reduce((acc, curr) => acc + curr, 0);
-      }
-  
-      // Calculate total income
-      const totalIncomeValue = parseFloat(income.replace(/,/g, "")) + totalOtherIncome;
-  
-      // Prepare the income object
-      const incomeData = {
-        userId,
-        month,
-        year,
-        date,
-        income,
-        totalIncome: totalIncomeValue.toString(),
-      };
-  
-      // Only add otherIncome if it's provided and not empty
-      if (otherIncome && Array.isArray(otherIncome) && otherIncome.length > 0) {
-        incomeData.otherIncome = otherIncome;
-      }
-  
-      // Save the new income entry
-      const newIncome = new Income(incomeData);
-      await newIncome.save();
-  
-      return res.status(201).json({
-        success: true,
-        message: "Reality income data stored successfully",
-        _id: newIncome._id,
-        userId: newIncome.userId,
-        month: newIncome.month,
-        year: newIncome.year,
-        date: newIncome.date,
-        income: newIncome.income,
-        otherIncome: newIncome.otherIncome || [], // Send empty array if not provided
-        totalIncome: newIncome.totalIncome,
-      });
-    } catch (error) {
-      return res.status(500).json({
-        success: false,
-        message: "Server error",
-        error: error.message,
-      });
-    }
-  };
+
+    const otherIncomeValues = otherIncome.map((item) => {
+      return parseFloat(Object.values(item)[0]) || 0;
+    });
+    const totalOtherIncome = otherIncomeValues.reduce(
+      (acc, curr) => acc + curr,
+      0
+    );
+
+    const totalIncomeValue =
+      parseFloat(income.replace(/,/g, "")) + totalOtherIncome;
+
+    const newIncome = new Income({
+      userId,
+      month,
+      year,
+      date,
+      income,
+      otherIncome,
+      totalIncome: totalIncomeValue.toString(),
+    });
+
+    await newIncome.save();
+
+    return res.status(201).json({
+      success: true,
+      message: "Reality income data stored successfully",
+      _id: newIncome._id,
+      userId: newIncome.userId,
+      month: newIncome.month,
+      year: newIncome.year,
+      date: newIncome.date,
+      income: newIncome.income,
+      otherIncome: newIncome.otherIncome,
+      totalIncome: newIncome.totalIncome,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
+};
 
 // Get Income by ID
 exports.getIncomeById = async (req, res) => {
@@ -92,7 +81,7 @@ exports.getIncomeById = async (req, res) => {
       return res.status(404).json({ message: "Income not found" });
     }
 
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
       data: income,
     });
@@ -122,7 +111,7 @@ exports.updateIncome = async (req, res) => {
       return res.status(404).json({ message: "Income not found" });
     }
 
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
       message: "Income updated successfully",
       data: updatedIncome,
@@ -148,7 +137,7 @@ exports.deleteIncome = async (req, res) => {
       return res.status(404).json({ message: "Income not found" });
     }
 
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
       message: "Income deleted successfully",
     });
@@ -173,7 +162,7 @@ exports.viewIncome = async (req, res) => {
       return res.status(404).json({ message: "No income found for this user in the specified month and year" });
     }
 
-    return res.status(200).json({
+    return res.status(201).json({
       success: true,
       data: incomes,
     });
