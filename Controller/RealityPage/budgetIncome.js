@@ -101,7 +101,7 @@ exports.getIncomeById = async (req, res) => {
 exports.updateIncome = async (req, res) => {
   //#swagger.tags = ['Reality-IncomeSource']
   const { id } = req.params;
-  const { month, year, date, income, otherIncome } = req.body;
+  const { month, year, date, income, otherIncome, userId } = req.body;
 
   if (!month || !year || !date || !income || !Array.isArray(otherIncome)) {
     return res.status(400).json({
@@ -127,6 +127,7 @@ exports.updateIncome = async (req, res) => {
         year,
         date,
         income,
+        userId,
         otherIncome: validOtherIncome,
         totalIncome: totalIncomeValue.toString(),
       },
