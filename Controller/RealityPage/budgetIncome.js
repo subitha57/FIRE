@@ -82,7 +82,7 @@ exports.getIncomeById = async (req, res) => {
   try {
     const income = await Income.findById(id);
     if (!income) {
-      return res.status(404).json({ message: "Income not found" });
+      return res.status(200).json({ message: "Income not found" });
     }
 
     return res.status(201).json({
@@ -111,7 +111,7 @@ exports.updateIncome = async (req, res) => {
     );
 
     if (!updatedIncome) {
-      return res.status(404).json({ message: "Income not found" });
+      return res.status(200).json({ message: "Income not found" });
     }
 
     return res.status(201).json({
@@ -136,7 +136,7 @@ exports.deleteIncome = async (req, res) => {
     const deletedIncome = await Income.findByIdAndDelete(id);
 
     if (!deletedIncome) {
-      return res.status(404).json({ message: "Income not found" });
+      return res.status(200).json({ message: "Income not found" });
     }
 
     return res.status(201).json({
@@ -160,7 +160,7 @@ exports.viewIncome = async (req, res) => {
     const incomes = await Income.find({ userId, month, year });
 
     if (incomes.length === 0) {
-      return res.status(404).json({
+      return res.status(200).json({
         message:
           "No income found for this user in the specified month and year",
       });
