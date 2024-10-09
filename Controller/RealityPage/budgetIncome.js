@@ -33,11 +33,9 @@ exports.createIncome = async (req, res) => {
       });
     }
 
-    const otherIncomeValues = otherIncome.map(
-      (item) => parseFloat(Object.values(item)[0]) || 0
-    );
+    const validOtherIncome = otherIncome.map((item) => parseFloat(item) || 0);
 
-    const totalOtherIncome = otherIncomeValues.reduce((acc, value) => {
+    const totalOtherIncome = validOtherIncome.reduce((acc, value) => {
       return acc + value;
     }, 0);
 
@@ -50,7 +48,7 @@ exports.createIncome = async (req, res) => {
       year,
       date,
       income,
-      otherIncome: otherIncomeValues,
+      otherIncome: validOtherIncome,
       totalIncome: totalIncomeValue.toString(),
     });
 
