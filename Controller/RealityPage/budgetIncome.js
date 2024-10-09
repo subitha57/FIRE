@@ -101,12 +101,35 @@ exports.getIncomeById = async (req, res) => {
 exports.updateIncome = async (req, res) => {
   //#swagger.tags = ['Reality-IncomeSource']
   const { id } = req.params;
-  const { income, otherIncome } = req.body;
+  const { month, year, date, income, otherIncome } = req.body;
+
+  if (!month || !year || !date || !income || !Array.isArray(otherIncome)) {
+    return res.status(400).json({
+      success: false,
+      message: "All fields are required, and otherIncome should be an array.",
+    });
+  }
 
   try {
+    const validOtherIncome = otherIncome.map((item) => parseFloat(item) || 0);
+
+    const totalOtherIncome = validOtherIncome.reduce((acc, value) => {
+      return acc + value;
+    }, 0);
+
+    const totalIncomeValue =
+      parseFloat(income.replace(/,/g, "")) + totalOtherIncome;
+
     const updatedIncome = await Income.findByIdAndUpdate(
       id,
-      { income, otherIncome },
+      {
+        month,
+        year,
+        date,
+        income,
+        otherIncome: validOtherIncome,
+        totalIncome: totalIncomeValue.toString(),
+      },
       { new: true, runValidators: true }
     );
 
