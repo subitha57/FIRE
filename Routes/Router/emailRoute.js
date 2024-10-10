@@ -8,7 +8,11 @@ router.post("/signin", User.Signin);
 router.post("/verify-otp", User.verifyOTP);
 
 router.post("/logout", User.logout);
+// router.use(User.checkSession);
 
 router.post("/validate", User.Validate);
 
 module.exports = router;
+
+
+
