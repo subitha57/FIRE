@@ -32,7 +32,7 @@ app.use('/api',route)
 const mongo = process.env.Mongo
 // MongoDB Connection
 mongoose
-    .connect(mongo.url, { useNewUrlParser: true, useUnifiedTopology: true })
+    .connect(mongo, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         console.log("MongoDB connected!");
     })
