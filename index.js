@@ -17,14 +17,12 @@ const swaggerUi = require("swagger-ui-express");
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
-app.use(
-    session({
-        secret: process.env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: true,
-        cookie: { secure: false }, 
-    })
-);
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your-secret-key', 
+    resave: false,  
+    saveUninitialized: true, 
+    cookie: { secure: false }
+  }));
 
 // Routes
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
