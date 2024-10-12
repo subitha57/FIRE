@@ -19,19 +19,16 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Generate OTP
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// Generate JWT Token with 1-minute expiration
 const generateToken = (email, userId) => {
   return jwt.sign({ email, userId }, process.env.JWT_SECRET, {
-    expiresIn: "1m", // Token expires in 1 minute
+    expiresIn: "15m",
   });
 };
 
-// Signin Controller
 exports.Signin = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { email } = req.body;
@@ -92,7 +89,6 @@ exports.Signin = async (req, res) => {
   }
 };
 
-// Verify OTP Controller
 exports.verifyOTP = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { email, otp } = req.body;
@@ -130,7 +126,7 @@ exports.verifyOTP = async (req, res) => {
         token,
         loggedIn: user.loggedIn,
         userId: user._id,
-        userProfile: userProfile ? true : false, 
+        userProfile: userProfile ? true : false,
       });
     } else {
       res.status(200).json({ error: "Invalid OTP" });
@@ -141,7 +137,6 @@ exports.verifyOTP = async (req, res) => {
   }
 };
 
-// Validate Token Controller
 exports.Validate = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { email, token } = req.body;
@@ -166,13 +161,14 @@ exports.Validate = async (req, res) => {
     res.status(201).json({ success: true, message: "Valid email and token" });
   } catch (err) {
     if (err.name === "TokenExpiredError") {
-      // If token is expired, log out the user by setting loggedIn to false
       const user = await User.findOne({ email });
 
       if (user) {
         user.loggedIn = false;
         await user.save();
-        return res.status(200).json({ error: "Token expired. User has been logged out." });
+        return res
+          .status(200)
+          .json({ error: "Token expired. User has been logged out." });
       }
     } else {
       console.error(err);
@@ -181,7 +177,6 @@ exports.Validate = async (req, res) => {
   }
 };
 
-// Logout Controller
 exports.logout = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { userId } = req.body;
@@ -199,7 +194,9 @@ exports.logout = async (req, res) => {
 
     user.loggedIn = false;
     await user.save();
-    res.status(201).json({ success: true, message: "User logged out successfully" });
+    res
+      .status(201)
+      .json({ success: true, message: "User logged out successfully" });
   } catch (err) {
     console.error(err);
     res.status(200).json({ error: "Failed to log out" });

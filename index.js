@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 app.use(express.json());
 app.use(
     session({
-        secret: "1234",
+        secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: true,
         cookie: { secure: false }, 

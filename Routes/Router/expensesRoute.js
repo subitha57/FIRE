@@ -1,16 +1,16 @@
 const express = require("express");
 const router = express.Router();
-
+const{verifyToken} = require('../../Middleware/authMiddleware');
 const expensesMasterController = require("../../Controller/expensesmasterController");
 
-router.post("/create", expensesMasterController.createExpense);
+router.post("/create", verifyToken,expensesMasterController.createExpense);
 
-router.get("/all", expensesMasterController.getAllExpenses);
+router.get("/all", verifyToken,expensesMasterController.getAllExpenses);
 
-router.get("/:id", expensesMasterController.getExpenseById);
+router.get("/:id", verifyToken,expensesMasterController.getExpenseById);
 
-router.put("/update/:name", expensesMasterController.updateExpense);
+router.put("/update/:name", verifyToken,expensesMasterController.updateExpense);
 
-router.delete("/delete/:name", expensesMasterController.deleteExpense);
+router.delete("/delete/:name", verifyToken,expensesMasterController.deleteExpense);
 
 module.exports = router;
