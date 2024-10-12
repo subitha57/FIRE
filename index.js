@@ -29,10 +29,10 @@ app.use(
 // Routes
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use('/api',route)
-
+const mongo = process.env.Mongo
 // MongoDB Connection
 mongoose
-    .connect(mongodb.url, { useNewUrlParser: true, useUnifiedTopology: true })
+    .connect(mongo.url, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(() => {
         console.log("MongoDB connected!");
     })
