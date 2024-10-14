@@ -289,7 +289,6 @@ require("dotenv").config();
 
 const cryptr = new Cryptr(process.env.JWT_SECRET);
 
-// Configure the email transporter using nodemailer
 const transporter = nodemailer.createTransport({
   service: "gmail",
   host: "smtp.gmail.com",
@@ -301,19 +300,16 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Generate a 6-digit OTP
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// Generate a JWT token for user authentication
 const generateToken = (email, userId) => {
   return jwt.sign({ email, userId }, process.env.JWT_SECRET, {
-    expiresIn: "15m", // Token expires in 15 minutes
+    expiresIn: "15m",
   });
 };
 
-// Sign in user and send OTP
 exports.Signin = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { email } = req.body;
@@ -374,7 +370,6 @@ exports.Signin = async (req, res) => {
   }
 };
 
-// Verify the OTP entered by the user
 exports.verifyOTP = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { email, otp } = req.body;
@@ -397,11 +392,10 @@ exports.verifyOTP = async (req, res) => {
     const decryptedOtp = cryptr.decrypt(user.otp);
 
     if (decryptedOtp === otp) {
-      // Generate sessionId with an expiration of 14 minutes
       const sessionId = jwt.sign(
         { email: user.email, userId: user._id },
         process.env.JWT_SECRET,
-        { expiresIn: "14m" } // Session expires in 14 minutes
+        { expiresIn: "14m" }
       );
 
       const token = generateToken(user.email, user._id);
@@ -409,7 +403,7 @@ exports.verifyOTP = async (req, res) => {
       user.loggedIn = true;
       user.otp = null;
       user.token = token;
-      user.sessionId = sessionId; // Store sessionId in the user document
+      user.sessionId = sessionId;
       await user.save();
 
       const userProfile = await Profile.findOne({ userId: user._id });
@@ -432,47 +426,36 @@ exports.verifyOTP = async (req, res) => {
   }
 };
 
-// Check if the session is active
 exports.checkSession = async (req, res) => {
-  //#swagger.tags = ['Login-User']
-  const { token } = req.body;
+  //#swagger.tags = ['Session-User']
+  const { sessionId } = req.body;
 
-  if (!token) {
-    return res.status(200).json({ error: "Token is required" });
+  if (!sessionId) {
+    return res.status(400).json({ error: "Session ID is required" });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    const user = await User.findById(decoded.userId);
+    // Find the user with the given sessionId
+    const user = await User.findOne({ sessionId });
 
     if (!user) {
-      return res.status(200).json({ error: "User not found" });
+      return res.status(404).json({ error: "Invalid session. Session not found." });
     }
 
     if (user.loggedIn) {
-      return res.status(201).json({
+      return res.status(200).json({
         success: true,
-        message: "Session is active",
-        sessionExpiresIn: decoded.exp - Math.floor(Date.now() / 1000),
+        message: "Session is valid",
         userId: user._id,
+        sessionId: user.sessionId,
+        loggedIn: user.loggedIn,
       });
     } else {
-      return res.status(200).json({
-        error: "User is not logged in",
-      });
+      return res.status(401).json({ error: "Session is not active. User is logged out." });
     }
   } catch (err) {
-    if (err.name === "TokenExpiredError") {
-      return res.status(200).json({
-        error: "Session expired. Please log in again.",
-      });
-    } else {
-      console.error(err);
-      return res.status(200).json({
-        error: "Invalid session or token",
-      });
-    }
+    console.error(err);
+    return res.status(500).json({ error: "An error occurred while checking the session" });
   }
 };
 
@@ -500,7 +483,6 @@ exports.refreshToken = async (req, res) => {
   }
 };
 
-// Validate the email and token
 exports.Validate = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { email, token } = req.body;
@@ -541,7 +523,6 @@ exports.Validate = async (req, res) => {
   }
 };
 
-// Logout user and update status
 exports.logout = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { userId } = req.body;
@@ -558,7 +539,6 @@ exports.logout = async (req, res) => {
     }
 
     user.loggedIn = false;
-    user.sessionId = null; // Clear sessionId on logout
     await user.save();
     res
       .status(201)
@@ -568,3 +548,4 @@ exports.logout = async (req, res) => {
     res.status(200).json({ error: "Failed to log out" });
   }
 };
+

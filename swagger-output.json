@@ -150,7 +150,7 @@
     "/api/user/check-session": {
       "post": {
         "tags": [
-          "Login-User"
+          "Session-User"
         ],
         "description": "",
         "parameters": [
@@ -160,7 +160,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "token": {
+                "sessionId": {
                   "example": "any"
                 }
               }
@@ -171,8 +171,17 @@
           "200": {
             "description": "OK"
           },
-          "201": {
-            "description": "Created"
+          "400": {
+            "description": "Bad Request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
