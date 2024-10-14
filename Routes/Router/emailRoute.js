@@ -13,6 +13,8 @@ router.post("/validate", User.Validate);
 
 router.post("/check-session", User.checkSession);
 
+router.post("/refresh-token", User.refreshToken);
+
 module.exports = router;
 
 
