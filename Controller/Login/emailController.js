@@ -89,6 +89,54 @@ exports.Signin = async (req, res) => {
   }
 };
 
+// exports.verifyOTP = async (req, res) => {
+//   //#swagger.tags = ['Login-User']
+//   const { email, otp } = req.body;
+
+//   if (!email || !otp) {
+//     return res.status(200).json({ error: "Email and OTP are required" });
+//   }
+
+//   try {
+//     const user = await User.findOne({ email });
+
+//     if (!user) {
+//       return res.status(200).json({ error: "User not found" });
+//     }
+
+//     if (user.loggedIn) {
+//       return res.status(200).json({ error: "User is already logged in" });
+//     }
+
+//     const decryptedOtp = cryptr.decrypt(user.otp);
+
+//     if (decryptedOtp === otp) {
+//       const token = generateToken(user.email, user._id);
+
+//       user.loggedIn = true;
+//       user.otp = null;
+//       user.token = token;
+//       await user.save();
+
+//       const userProfile = await Profile.findOne({ userId: user._id });
+
+//       res.status(201).json({
+//         success: true,
+//         message: "OTP is valid, user logged in",
+//         token,
+//         loggedIn: user.loggedIn,
+//         userId: user._id,
+//         userProfile: userProfile ? true : false,
+//       });
+//     } else {
+//       res.status(200).json({ error: "Invalid OTP" });
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     res.status(200).json({ error: "Failed to verify OTP" });
+//   }
+// };
+
 exports.verifyOTP = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { email, otp } = req.body;
@@ -111,11 +159,20 @@ exports.verifyOTP = async (req, res) => {
     const decryptedOtp = cryptr.decrypt(user.otp);
 
     if (decryptedOtp === otp) {
+      // Generate a session ID with an expiration of 14 minutes (840 seconds)
+      const sessionId = jwt.sign(
+        { email: user.email, userId: user._id },
+        process.env.JWT_SECRET,
+        { expiresIn: "14m" } // 14 minutes
+      );
+
+      // Generate the token for the user
       const token = generateToken(user.email, user._id);
 
       user.loggedIn = true;
       user.otp = null;
       user.token = token;
+      user.sessionId = sessionId; // Store the sessionId in the user document or use another model to store sessions
       await user.save();
 
       const userProfile = await Profile.findOne({ userId: user._id });
@@ -124,6 +181,8 @@ exports.verifyOTP = async (req, res) => {
         success: true,
         message: "OTP is valid, user logged in",
         token,
+        sessionId,  // Include the sessionId in the response
+        sessionExpiresIn: 14 * 60, // Session expiration in seconds (14 minutes)
         loggedIn: user.loggedIn,
         userId: user._id,
         userProfile: userProfile ? true : false,
@@ -136,6 +195,7 @@ exports.verifyOTP = async (req, res) => {
     res.status(200).json({ error: "Failed to verify OTP" });
   }
 };
+
 
 exports.Validate = async (req, res) => {
   //#swagger.tags = ['Login-User']
