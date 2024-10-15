@@ -4,10 +4,10 @@ const nodemailer = require("nodemailer");
 const Cryptr = require("cryptr");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid"); // To generate unique sessionId
 require("dotenv").config();
 
 const cryptr = new Cryptr(process.env.JWT_SECRET);
-
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -20,19 +20,19 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-
+// OTP generation logic
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-
+// Token generation with 15 minutes expiration
 const generateToken = (email, userId) => {
   return jwt.sign({ email, userId }, process.env.JWT_SECRET, {
-    expiresIn: "15m", 
+    expiresIn: "15m", // Token expires in 15 minutes
   });
 };
 
-
+// Signin route
 exports.Signin = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { email } = req.body;
@@ -93,7 +93,7 @@ exports.Signin = async (req, res) => {
   }
 };
 
-
+// OTP verification route
 exports.verifyOTP = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { email, otp } = req.body;
@@ -116,19 +116,21 @@ exports.verifyOTP = async (req, res) => {
     const decryptedOtp = cryptr.decrypt(user.otp);
 
     if (decryptedOtp === otp) {
-      
+      // Generate a unique sessionId with 14-minute expiration
       const sessionId = jwt.sign(
-        { email: user.email, userId: user._id },
+        { sessionId: uuidv4(), email: user.email, userId: user._id },
         process.env.JWT_SECRET,
-        { expiresIn: "14m" } 
+        { expiresIn: "14m" }  // Session expires in 14 minutes
       );
 
+      // Generate token with 15-minute expiration
       const token = generateToken(user.email, user._id);
 
+      // Update user session information
       user.loggedIn = true;
       user.otp = null;
       user.token = token;
-      user.sessionId = sessionId; 
+      user.sessionId = sessionId; // Save sessionId in the database
       await user.save();
 
       const userProfile = await Profile.findOne({ userId: user._id });
@@ -136,8 +138,8 @@ exports.verifyOTP = async (req, res) => {
       res.status(201).json({
         success: true,
         message: "OTP is valid, user logged in",
-        token,
-        sessionId,
+        token,      // Return token (15 mins expiration)
+        sessionId,  // Return sessionId (14 mins expiration)
         loggedIn: user.loggedIn,
         userId: user._id,
         userProfile: userProfile ? true : false,
@@ -151,7 +153,7 @@ exports.verifyOTP = async (req, res) => {
   }
 };
 
-
+// Check session route
 exports.checkSession = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { token } = req.body;
@@ -195,7 +197,7 @@ exports.checkSession = async (req, res) => {
   }
 };
 
-// Refresh token
+// Refresh token route
 exports.refreshToken = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { token } = req.body;
