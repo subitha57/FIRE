@@ -7,6 +7,14 @@ const expenseSchema = new mongoose.Schema({
         ref: 'User', 
         required: true 
     },
+    month: {
+      type: String,
+      required: true,
+    },
+    year: {
+      type: Number,
+      required: true,
+    },
     date: { 
         type: Date, 
         default: Date.now 

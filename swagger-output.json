@@ -1589,6 +1589,12 @@
                 "userId": {
                   "example": "any"
                 },
+                "month": {
+                  "example": "any"
+                },
+                "year": {
+                  "example": "any"
+                },
                 "title": {
                   "example": "any"
                 },
