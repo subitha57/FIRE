@@ -1,224 +1,147 @@
-// const Expenses = require("../../Model/Reality/ExpensesRealityModel");
+// const Expense = require("../../Model/Reality/ExpensesRealityModel");
 // const User = require("../../Model/emailModel");
 
-// exports.Create = async (req, res) => {
-//     //#swagger.tags = ['Reality-Expenses']
+// exports.createExpense = async (req, res) => {
+//   //#swagger.tags = ['Reality-Expenses']
 //   try {
-//     const { name, data, userId, month, year } = req.body;
+//     const { name, date, userId, data } = req.body;
 
 //     const user = await User.findById(userId);
 //     if (!user) {
 //       return res.status(404).json({ message: "User not found" });
 //     }
 
-//     const newExpense = new Expenses({
+//     const newExpense = new Expense({
 //       name,
-//       data,
+//       date,
 //       userId,
-//       month,
-//       year,
+//       data,
 //     });
 
-//     await newExpense.save();
-
-//     res.status(201).json({
-//       message: "Expense added successfully",
-//       newExpense,
+//     const savedExpense = await newExpense.save();
+//     return res.status(201).json({
+//       message: "Expense created successfully",
+//       expense: savedExpense,
 //     });
-//   } catch (err) {
-//     res.status(500).json({
-//       error: "Failed to add expense",
-//       details: err.message,
-//     });
+//   } catch (error) {
+//     return res
+//       .status(500)
+//       .json({ message: "Server error", error: error.message });
 //   }
 // };
 
-// exports.getById = async (req, res) => {
-//     //#swagger.tags = ['Reality-Expenses']
+// exports.updateExpense = async (req, res) => {
+//   //#swagger.tags = ['Reality-Expenses']
 //   try {
 //     const { id } = req.params;
+//     const { name, date, data } = req.body;
 
-//     const expense = await Expenses.findById(id);
+//     const expense = await Expense.findById(id);
 //     if (!expense) {
 //       return res.status(404).json({ message: "Expense not found" });
 //     }
 
-//     res.status(200).json({
-//       message: "Expense retrieved successfully",
-//       expense,
-//     });
-//   } catch (err) {
-//     res.status(500).json({
-//       error: "Failed to retrieve expense",
-//       details: err.message,
-//     });
-//   }
-// };
+//     expense.name = name || expense.name;
+//     expense.date = date || expense.date;
+//     expense.data = data || expense.data;
 
-// exports.Update = async (req, res) => {
-//     //#swagger.tags = ['Reality-Expenses']
-//   try {
-//     const { id } = req.params;
-//     const { name, data, userId, month, year } = req.body;
-
-//     const user = await User.findById(userId);
-//     if (!user) {
-//       return res.status(404).json({ message: "User not found" });
-//     }
-
-//     const updatedExpense = await Expenses.findByIdAndUpdate(
-//       id,
-//       { name, data, month, year },
-//       { new: true }
-//     );
-
-//     if (!updatedExpense) {
-//       return res.status(404).json({ message: "Expense not found" });
-//     }
-
-//     res.status(200).json({
+//     const updatedExpense = await expense.save();
+//     return res.status(200).json({
 //       message: "Expense updated successfully",
 //       expense: updatedExpense,
 //     });
-//   } catch (err) {
-//     res.status(500).json({
-//       error: "Failed to update expense",
-//       details: err.message,
-//     });
+//   } catch (error) {
+//     return res
+//       .status(500)
+//       .json({ message: "Server error", error: error.message });
 //   }
 // };
 
-// exports.Delete = async (req, res) => {
-//     //#swagger.tags = ['Reality-Expenses']
+// exports.getExpenseById = async (req, res) => {
+//   //#swagger.tags = ['Reality-Expenses']
 //   try {
 //     const { id } = req.params;
 
-//     const expense = await Expenses.findById(id);
+//     const expense = await Expense.findById(id);
 //     if (!expense) {
 //       return res.status(404).json({ message: "Expense not found" });
 //     }
 
-//     await Expenses.findByIdAndDelete(id);
-
-//     res.status(200).json({ message: "Expense deleted successfully" });
-//   } catch (err) {
-//     res.status(500).json({
-//       error: "Failed to delete expense",
-//       details: err.message,
-//     });
+//     return res.status(200).json(expense);
+//   } catch (error) {
+//     return res
+//       .status(500)
+//       .json({ message: "Server error", error: error.message });
 //   }
 // };
 
-const Expense = require("../../Model/Reality/ExpensesRealityModel");
-const User = require("../../Model/emailModel");
+// exports.getExpensesByUser = async (req, res) => {
+//   //#swagger.tags = ['Reality-Expenses']
+//   try {
+//     const { userId } = req.params;
+
+//     const expenses = await Expense.find({ userId });
+//     if (!expenses || expenses.length === 0) {
+//       return res
+//         .status(404)
+//         .json({ message: "No expenses found for this user" });
+//     }
+
+//     return res.status(200).json(expenses);
+//   } catch (error) {
+//     return res
+//       .status(500)
+//       .json({ message: "Server error", error: error.message });
+//   }
+// };
+
+// exports.deleteExpense = async (req, res) => {
+//   //#swagger.tags = ['Reality-Expenses']
+//   try {
+//     const { id } = req.params;
+
+//     const deletedExpense = await Expense.findByIdAndDelete(id);
+//     if (!deletedExpense) {
+//       return res.status(404).json({ message: "Expense not found" });
+//     }
+//     return res.status(200).json({ message: "Expense deleted successfully" });
+//   } catch (error) {
+//     return res
+//       .status(500)
+//       .json({ message: "Server error", error: error.message });
+//   }
+// };
+
+const express = require('express');
+const router = express.Router();
+const Expense = require('../../Model/Reality/ExpensesRealityModel');
+const User = require('../../Model/emailModel');
+
 
 exports.createExpense = async (req, res) => {
-  //#swagger.tags = ['Reality-Expenses']
-  try {
-    const { name, date, userId, data } = req.body;
+    const { userId, title, category, amount } = req.body;
+    
+    try {
+        // Check if user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
+        // Create a new Expense
+        const newExpense = new Expense({
+            userId: user._id,
+            title,
+            category,
+            amount
+        });
+
+        await newExpense.save();
+
+        res.status(201).json({ message: 'Expense created successfully', expense: newExpense });
+    } catch (error) {
+        res.status(500).json({ message: 'Error creating expense', error });
     }
-
-    const newExpense = new Expense({
-      name,
-      date,
-      userId,
-      data,
-    });
-
-    const savedExpense = await newExpense.save();
-    return res.status(201).json({
-      message: "Expense created successfully",
-      expense: savedExpense,
-    });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: error.message });
-  }
 };
 
-exports.updateExpense = async (req, res) => {
-  //#swagger.tags = ['Reality-Expenses']
-  try {
-    const { id } = req.params;
-    const { name, date, data } = req.body;
 
-    const expense = await Expense.findById(id);
-    if (!expense) {
-      return res.status(404).json({ message: "Expense not found" });
-    }
-
-    expense.name = name || expense.name;
-    expense.date = date || expense.date;
-    expense.data = data || expense.data;
-
-    const updatedExpense = await expense.save();
-    return res.status(200).json({
-      message: "Expense updated successfully",
-      expense: updatedExpense,
-    });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: error.message });
-  }
-};
-
-exports.getExpenseById = async (req, res) => {
-  //#swagger.tags = ['Reality-Expenses']
-  try {
-    const { id } = req.params;
-
-    const expense = await Expense.findById(id);
-    if (!expense) {
-      return res.status(404).json({ message: "Expense not found" });
-    }
-
-    return res.status(200).json(expense);
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: error.message });
-  }
-};
-
-exports.getExpensesByUser = async (req, res) => {
-  //#swagger.tags = ['Reality-Expenses']
-  try {
-    const { userId } = req.params;
-
-    const expenses = await Expense.find({ userId });
-    if (!expenses || expenses.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No expenses found for this user" });
-    }
-
-    return res.status(200).json(expenses);
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: error.message });
-  }
-};
-
-exports.deleteExpense = async (req, res) => {
-  //#swagger.tags = ['Reality-Expenses']
-  try {
-    const { id } = req.params;
-
-    const deletedExpense = await Expense.findByIdAndDelete(id);
-    if (!deletedExpense) {
-      return res.status(404).json({ message: "Expense not found" });
-    }
-    return res.status(200).json({ message: "Expense deleted successfully" });
-  } catch (error) {
-    return res
-      .status(500)
-      .json({ message: "Server error", error: error.message });
-  }
-};
