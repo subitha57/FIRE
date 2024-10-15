@@ -53,6 +53,9 @@
     },
     "/api/user/verify-otp": {
       "post": {
+        "tags": [
+          "Login-User"
+        ],
         "description": "",
         "parameters": [
           {
@@ -146,6 +149,9 @@
     },
     "/api/user/check-session": {
       "post": {
+        "tags": [
+          "Login-User"
+        ],
         "description": "",
         "parameters": [
           {

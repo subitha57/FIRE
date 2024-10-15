@@ -189,6 +189,7 @@ exports.Signin = async (req, res) => {
 //   }
 // };
 exports.verifyOTP = async (req, res) => {
+  //#swagger.tags = ['Login-User']
   const { email, otp } = req.body;
 
   if (!email || !otp) {
@@ -248,6 +249,7 @@ exports.verifyOTP = async (req, res) => {
 };
 
 exports.checkSession = async (req, res) => {
+  //#swagger.tags = ['Login-User']
   const { sessionId } = req.body;
 
   if (!sessionId) {
