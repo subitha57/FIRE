@@ -5,6 +5,7 @@ const User = require("../../Model/emailModel");
 
 // Create a new expense
 exports.createExpense = async (req, res) => {
+  //#swagger.tags = ['Reality-Expenses']
   const { userId, title, category, amount } = req.body;
 
   try {
@@ -30,6 +31,7 @@ exports.createExpense = async (req, res) => {
 
 // Get all expenses
 exports.getAllExpenses = async (req, res) => {
+  //#swagger.tags = ['Reality-Expenses']
   try {
     const expenses = await Expense.find();
     res.status(200).json(expenses);
@@ -40,6 +42,7 @@ exports.getAllExpenses = async (req, res) => {
 
 // Get a single expense by ID
 exports.getExpenseById = async (req, res) => {
+  //#swagger.tags = ['Reality-Expenses']
   const { id } = req.params;
 
   try {
@@ -55,6 +58,7 @@ exports.getExpenseById = async (req, res) => {
 
 // Update an expense by ID
 exports.updateExpense = async (req, res) => {
+  //#swagger.tags = ['Reality-Expenses']
   const { id } = req.params;
   const { title, category, amount } = req.body;
 
@@ -77,6 +81,7 @@ exports.updateExpense = async (req, res) => {
 
 // Delete an expense by ID
 exports.deleteExpense = async (req, res) => {
+  //#swagger.tags = ['Reality-Expenses']
   const { id } = req.params;
 
   try {
