@@ -14,7 +14,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    
+    sessionId: { 
+      type: String 
+    },
+  sessionExpiresAt: { 
+    type: Date 
+  },
     loggedIn: {
       type: Boolean,
       default: false,

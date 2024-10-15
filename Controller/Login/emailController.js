@@ -4,7 +4,7 @@ const nodemailer = require("nodemailer");
 const Cryptr = require("cryptr");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
-const { v4: uuidv4 } = require("uuid"); // To generate unique sessionId
+const { v4: uuidv4 } = require("uuid");
 require("dotenv").config();
 
 const cryptr = new Cryptr(process.env.JWT_SECRET);
@@ -20,19 +20,16 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// OTP generation logic
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
-// Token generation with 15 minutes expiration
 const generateToken = (email, userId) => {
   return jwt.sign({ email, userId }, process.env.JWT_SECRET, {
-    expiresIn: "15m", // Token expires in 15 minutes
+    expiresIn: "15m",
   });
 };
 
-// Signin route
 exports.Signin = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { email } = req.body;
@@ -93,9 +90,105 @@ exports.Signin = async (req, res) => {
   }
 };
 
-// OTP verification route
+// exports.verifyOTP = async (req, res) => {
+//   //#swagger.tags = ['Login-User']
+//   const { email, otp } = req.body;
+
+//   if (!email || !otp) {
+//     return res.status(200).json({ error: "Email and OTP are required" });
+//   }
+
+//   try {
+//     const user = await User.findOne({ email });
+
+//     if (!user) {
+//       return res.status(200).json({ error: "User not found" });
+//     }
+
+//     if (user.loggedIn) {
+//       return res.status(200).json({ error: "User is already logged in" });
+//     }
+
+//     const decryptedOtp = cryptr.decrypt(user.otp);
+
+//     if (decryptedOtp === otp) {
+//       const sessionId = jwt.sign(
+//         { sessionId: uuidv4(), email: user.email, userId: user._id },
+//         process.env.JWT_SECRET,
+//         { expiresIn: "14m" }
+//       );
+
+//       const token = generateToken(user.email, user._id);
+
+//       user.loggedIn = true;
+//       user.otp = null;
+//       user.token = token;
+//       user.sessionId = sessionId;
+//       await user.save();
+
+//       const userProfile = await Profile.findOne({ userId: user._id });
+
+//       res.status(201).json({
+//         success: true,
+//         message: "OTP is valid, user logged in",
+//         token,
+//         sessionId,
+//         loggedIn: user.loggedIn,
+//         userId: user._id,
+//         userProfile: userProfile ? true : false,
+//       });
+//     } else {
+//       res.status(200).json({ error: "Invalid OTP" });
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     res.status(200).json({ error: "Failed to verify OTP" });
+//   }
+// };
+
+// exports.checkSession = async (req, res) => {
+//   //#swagger.tags = ['Login-User']
+//   const { token } = req.body;
+
+//   if (!token) {
+//     return res.status(200).json({ error: "Token is required" });
+//   }
+
+//   try {
+//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+//     const user = await User.findById(decoded.userId);
+
+//     if (!user) {
+//       return res.status(200).json({ error: "User not found" });
+//     }
+
+//     if (user.loggedIn) {
+//       return res.status(201).json({
+//         success: true,
+//         message: "Session is active",
+//         sessionExpiresIn: decoded.exp - Math.floor(Date.now() / 1000),
+//         userId: user._id,
+//       });
+//     } else {
+//       return res.status(200).json({
+//         error: "User is not logged in",
+//       });
+//     }
+//   } catch (err) {
+//     if (err.name === "TokenExpiredError") {
+//       return res.status(200).json({
+//         error: "Session expired. Please log in again.",
+//       });
+//     } else {
+//       console.error(err);
+//       return res.status(200).json({
+//         error: "Invalid session or token",
+//       });
+//     }
+//   }
+// };
 exports.verifyOTP = async (req, res) => {
-  //#swagger.tags = ['Login-User']
   const { email, otp } = req.body;
 
   if (!email || !otp) {
@@ -116,21 +209,21 @@ exports.verifyOTP = async (req, res) => {
     const decryptedOtp = cryptr.decrypt(user.otp);
 
     if (decryptedOtp === otp) {
-      // Generate a unique sessionId with 14-minute expiration
-      const sessionId = jwt.sign(
-        { sessionId: uuidv4(), email: user.email, userId: user._id },
-        process.env.JWT_SECRET,
-        { expiresIn: "14m" }  // Session expires in 14 minutes
-      );
+      // Generate UUID for sessionId
+      const sessionId = uuidv4();
 
-      // Generate token with 15-minute expiration
+      // Set session expiration time to 14 minutes from now
+      const sessionExpiresAt = Date.now() + 14 * 60 * 1000; // 14 minutes in milliseconds
+
+      // Generate JWT token with 15-minute expiration
       const token = generateToken(user.email, user._id);
 
       // Update user session information
       user.loggedIn = true;
       user.otp = null;
       user.token = token;
-      user.sessionId = sessionId; // Save sessionId in the database
+      user.sessionId = sessionId; // Store UUID sessionId
+      user.sessionExpiresAt = sessionExpiresAt; // Store session expiration time
       await user.save();
 
       const userProfile = await Profile.findOne({ userId: user._id });
@@ -139,7 +232,8 @@ exports.verifyOTP = async (req, res) => {
         success: true,
         message: "OTP is valid, user logged in",
         token,      // Return token (15 mins expiration)
-        sessionId,  // Return sessionId (14 mins expiration)
+        sessionId,  // Return UUID sessionId
+        sessionExpiresAt, // Return the session expiration timestamp
         loggedIn: user.loggedIn,
         userId: user._id,
         userProfile: userProfile ? true : false,
@@ -153,51 +247,46 @@ exports.verifyOTP = async (req, res) => {
   }
 };
 
-// Check session route
 exports.checkSession = async (req, res) => {
-  //#swagger.tags = ['Login-User']
-  const { token } = req.body;
+  const { sessionId } = req.body;
 
-  if (!token) {
-    return res.status(200).json({ error: "Token is required" });
+  if (!sessionId) {
+    return res.status(200).json({ error: "Session ID is required" });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    const user = await User.findById(decoded.userId);
+    const user = await User.findOne({ sessionId });
 
     if (!user) {
-      return res.status(200).json({ error: "User not found" });
+      return res.status(200).json({ error: "Invalid session ID" });
     }
 
-    if (user.loggedIn) {
-      return res.status(201).json({
-        success: true,
-        message: "Session is active",
-        sessionExpiresIn: decoded.exp - Math.floor(Date.now() / 1000),
-        userId: user._id,
-      });
-    } else {
+    // Check if session has expired
+    if (Date.now() > user.sessionExpiresAt) {
+      // Session expired
+      user.loggedIn = false;
+      user.sessionId = null;
+      await user.save();
       return res.status(200).json({
-        error: "User is not logged in",
+        error: "Session has expired. Please log in again.",
       });
     }
+
+    // Session is still valid
+    return res.status(201).json({
+      success: true,
+      message: "Session is active",
+      sessionExpiresIn: user.sessionExpiresAt - Date.now(), // Time remaining in milliseconds
+      userId: user._id,
+    });
   } catch (err) {
-    if (err.name === "TokenExpiredError") {
-      return res.status(200).json({
-        error: "Session expired. Please log in again.",
-      });
-    } else {
-      console.error(err);
-      return res.status(200).json({
-        error: "Invalid session or token",
-      });
-    }
+    console.error(err);
+    return res.status(200).json({
+      error: "Failed to check session",
+    });
   }
 };
 
-// Refresh token route
 exports.refreshToken = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { token } = req.body;
@@ -221,7 +310,6 @@ exports.refreshToken = async (req, res) => {
   }
 };
 
-// Validate the email and token
 exports.Validate = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { email, token } = req.body;
@@ -262,7 +350,6 @@ exports.Validate = async (req, res) => {
   }
 };
 
-// Logout user and update status
 exports.logout = async (req, res) => {
   //#swagger.tags = ['Login-User']
   const { userId } = req.body;
@@ -279,7 +366,7 @@ exports.logout = async (req, res) => {
     }
 
     user.loggedIn = false;
-    user.sessionId = null; // Clear sessionId on logout
+    user.sessionId = null;
     await user.save();
     res
       .status(201)
