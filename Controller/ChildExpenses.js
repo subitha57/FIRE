@@ -171,3 +171,24 @@ exports.getAll = async (req, res) => {
       });
     }
   };
+
+  exports.deleteById = async (req, res) => {
+    //#swagger.tags = ['Master-Expenses']
+    try {
+      const expenses = await ChildExpenses.findOne({ _id: req.params.expenses_id });
+      if (expenses) {
+        await ChildExpenses.deleteOne({ _id: req.params.expenses_id });
+        res.status(200).json({
+          message: "expenses data deleted successfully",
+        });
+      } else {
+        res.status(404).json({
+          message: "No expenses data found",
+        });
+      }
+    } catch (error) {
+      res.status(500).json({
+        message: "Failed to delete a expenses ",
+      });
+    }
+  };

@@ -1568,7 +1568,7 @@
         }
       }
     },
-    "/api/childexpenses/all/{userId}": {
+    "/api/childexpenses/all": {
       "get": {
         "tags": [
           "Child-Expenses"
@@ -1576,7 +1576,33 @@
         "description": "",
         "parameters": [
           {
-            "name": "userId",
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/childexpenses/delete/{expenses_id}": {
+      "delete": {
+        "tags": [
+          "Master-Expenses"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "expenses_id",
             "in": "path",
             "required": true,
             "type": "string"
@@ -1593,6 +1619,9 @@
           },
           "401": {
             "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
           },
           "500": {
             "description": "Internal Server Error"
