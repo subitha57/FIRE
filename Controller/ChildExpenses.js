@@ -2,7 +2,6 @@ const ChildExpenses = require("../Model/ChildExpensesModel");
 const User = require("../Model/emailModel");
 const ExpensesMaster = require("../Model/expensesModel");
 
-// Upsert child expense (create new or update existing)
 exports.upsert = async (req, res) => {
   //#swagger.tags = ['Child-Expenses']
   const { id, userId, expensesId, category, title } = req.body;
@@ -14,29 +13,42 @@ exports.upsert = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Check if the linked master expense exists
+    // Check if the Expenses Master exists
     const expensesMaster = await ExpensesMaster.findById(expensesId);
     if (!expensesMaster) {
       return res.status(404).json({ message: "Expenses Master not found" });
     }
 
-    // Calculate the total amount by counting categories (assuming each category adds to the total)
-    const amount = category.length; // Here, you can calculate the amount based on your logic
+    // Calculate the total amount by summing up the values in the category
+    const amount = category.reduce((total, item) => {
+      const value = Object.values(item)[0]; // Get the first value in each object
+      return total + parseFloat(value); // Add the value to the total
+    }, 0);
 
+    // Check if the title and expensesId already exist for the user
+    const existingExpense = await ChildExpenses.findOne({ userId, title, expensesId });
+    if (existingExpense && (!id || existingExpense._id.toString() !== id)) {
+      return res.status(400).json({
+        statusCode: "1",
+        message: "An expense with this title and expensesId already exists for this user",
+      });
+    }
+
+    // Upsert logic (create new or update existing child expense)
     if (id) {
-      // Update existing child expense
+      // Update the existing child expense
       const updatedExpense = await ChildExpenses.findByIdAndUpdate(
         id,
         { userId, expensesId, category, amount, title },
         { new: true, upsert: true }
       );
       res.status(200).json({
-        statusCode: '0',
+        statusCode: "0",
         data: updatedExpense,
-        message: 'ChildExpense Updated Successfully',
+        message: "ChildExpense Updated Successfully",
       });
     } else {
-      // Create new child expense
+      // Create a new child expense
       const newChildExpense = await new ChildExpenses({
         userId,
         expensesId,
@@ -45,36 +57,33 @@ exports.upsert = async (req, res) => {
         title,
       }).save();
       res.status(200).json({
-        statusCode: '0',
+        statusCode: "0",
         data: newChildExpense,
-        message: 'ChildExpense Added Successfully',
+        message: "ChildExpense Added Successfully",
       });
     }
   } catch (error) {
     res.status(500).json({
-      statusCode: '1',
+      statusCode: "1",
       message: error.message,
     });
   }
 };
 
-// Get all child expenses for a specific user
+// Get all child expenses
 exports.getAll = async (req, res) => {
   //#swagger.tags = ['Child-Expenses']
-  const { userId } = req.body; // Assuming userId is passed in the body
-
   try {
-    const childExpenses = await ChildExpenses.find({ userId }).populate('expensesId'); // Populate expensesId
+    const expenses = await ChildExpenses.find().populate('userId').populate('expensesId');
     res.status(200).json({
       statusCode: '0',
-      message: "Child expenses data retrieved successfully",
-      data: childExpenses,
+      message: "Expenses data retrieved successfully",
+      data: expenses,
     });
   } catch (error) {
     res.status(500).json({
       statusCode: '1',
-      message: "Failed to retrieve child expenses data",
+      message: "Failed to retrieve expenses data",
     });
   }
 };
-
