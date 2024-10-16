@@ -9,17 +9,13 @@ exports.upsert = async (req, res) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(200).json({ message: "User not found" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const expensesMaster = await ExpensesMaster.findById(expensesId);
     if (!expensesMaster) {
-      return res.status(200).json({ message: "Expenses Master not found" });
+      return res.status(404).json({ message: "Expenses Master not found" });
     }
-
-    const amount = category.reduce((total, item) => {
-      return total + parseFloat(item.amount);
-    }, 0);
 
     const existingExpense = await ChildExpenses.findOne({ userId, expensesId });
 
@@ -29,8 +25,7 @@ exports.upsert = async (req, res) => {
       );
 
       if (titleExists && (!id || existingExpense._id.toString() !== id)) {
-        return res.status(200).json({
-          statusCode: "1",
+        return res.status(409).json({
           message: `The title '${title}' already exists in the category list for this user.`,
         });
       }
@@ -39,32 +34,34 @@ exports.upsert = async (req, res) => {
     if (id) {
       const updatedExpense = await ChildExpenses.findByIdAndUpdate(
         id,
-        { userId, expensesId, category, amount, title },
+        { userId, expensesId, category, title },
         { new: true, upsert: true }
       );
-      res.status(201).json({
-        statusCode: "0",
-        data: updatedExpense,
+
+      return res.status(200).json({
         message: "ChildExpense Updated Successfully",
+        data: updatedExpense,
       });
     } else {
-      const newChildExpense = await new ChildExpenses({
+      const newChildExpense = new ChildExpenses({
         userId,
         expensesId,
         category,
-        amount,
         title,
-      }).save();
-      res.status(201).json({
-        statusCode: "0",
-        data: newChildExpense,
+      });
+
+      await newChildExpense.save();
+
+      return res.status(201).json({
         message: "ChildExpense Added Successfully",
+        data: newChildExpense,
       });
     }
   } catch (error) {
-    res.status(500).json({
-      statusCode: "1",
-      message: error.message,
+    console.error(error);
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
     });
   }
 };
