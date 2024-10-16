@@ -91,10 +91,16 @@
 
 
 const ExpensesMaster = require("../Model/expensesModel");
+const User = require("../Model/emailModel");
+
 exports.upsertExpense = async (req, res) => {
   //#swagger.tags = ['Master-Expenses']
-    const { id, title } = req.body;
+    const { id, title, userId } = req.body;
     try {
+      const user = await User.findById(userId);
+    if (!user) {
+      return res.status(200).json({ message: "User not found" });
+    }
       if (id) {
         const updatedExpense = await ExpensesMaster.findByIdAndUpdate(id, { title }, {new: true, upsert: true })
         res.status(200).json({ statusCode: '0', data: updatedExpense, message: 'MasterExpenses Updated Successfully' })
