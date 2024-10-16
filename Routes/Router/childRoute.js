@@ -5,7 +5,7 @@ const ExpensesChild = require("../../Controller/ChildExpenses");
 
 router.post("/create", verifyToken, ExpensesChild.upsert);
 
-router.get("/all", verifyToken,ExpensesChild.getAll);
+router.get("/all/:userId", verifyToken,ExpensesChild.getAll);
 
 // router.get("/getbyid/:expenses_id", verifyToken,ExpensesChild.getById);
 

@@ -1574,13 +1574,19 @@
         }
       }
     },
-    "/api/childexpenses/all": {
+    "/api/childexpenses/all/{userId}": {
       "get": {
         "tags": [
           "Child-Expenses"
         ],
         "description": "",
         "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
           {
             "name": "authorization",
             "in": "header",
