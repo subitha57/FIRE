@@ -158,7 +158,7 @@ exports.upsert = async (req, res) => {
 exports.getAll = async (req, res) => {
     //#swagger.tags = ['Child-Expenses']
     try {
-      const expenses = await ExpensesMaster.find();
+      const expenses = await ChildExpenses.find();
       res.status(200).json({
         statusCode: '0',
         message: "Expenses data retrived Successfully",
@@ -173,7 +173,7 @@ exports.getAll = async (req, res) => {
   };
 
   exports.deleteById = async (req, res) => {
-    //#swagger.tags = ['Master-Expenses']
+    //#swagger.tags = ['Child-Expenses']
     try {
       const expenses = await ChildExpenses.findOne({ _id: req.params.expenses_id });
       if (expenses) {

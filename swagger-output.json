@@ -1597,7 +1597,7 @@
     "/api/childexpenses/delete/{expenses_id}": {
       "delete": {
         "tags": [
-          "Master-Expenses"
+          "Child-Expenses"
         ],
         "description": "",
         "parameters": [
