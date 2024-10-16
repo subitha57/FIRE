@@ -2,11 +2,11 @@
 const mongoose = require('mongoose');
 
 const ExpensesMasterSchema = new mongoose.Schema({
-    serialNo: {
-        type: Number,
-        required: true,
-    },
-    name: {
+    // serialNo: {
+    //     type: Number,
+    //     required: true,
+    // },
+    title: {
         type: String,
         required: true,
     },

@@ -1155,10 +1155,10 @@
             "schema": {
               "type": "object",
               "properties": {
-                "serialNo": {
+                "id": {
                   "example": "any"
                 },
-                "name": {
+                "title": {
                   "example": "any"
                 }
               }
@@ -1166,11 +1166,8 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "400": {
-            "description": "Bad Request"
+          "200": {
+            "description": "OK"
           },
           "401": {
             "description": "Unauthorized"
@@ -1207,7 +1204,7 @@
         }
       }
     },
-    "/api/master/{id}": {
+    "/api/master/getbyid/{expenses_id}": {
       "get": {
         "tags": [
           "Master-Expenses"
@@ -1215,7 +1212,7 @@
         "description": "",
         "parameters": [
           {
-            "name": "id",
+            "name": "expenses_id",
             "in": "path",
             "required": true,
             "type": "string"
@@ -1242,57 +1239,7 @@
         }
       }
     },
-    "/api/master/update/{name}": {
-      "put": {
-        "tags": [
-          "Master-Expenses"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "name",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "serialNo": {
-                  "example": "any"
-                },
-                "name": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/master/delete/{name}": {
+    "/api/master/delete/{expenses_id}": {
       "delete": {
         "tags": [
           "Master-Expenses"
@@ -1300,7 +1247,7 @@
         "description": "",
         "parameters": [
           {
-            "name": "name",
+            "name": "expenses_id",
             "in": "path",
             "required": true,
             "type": "string"
