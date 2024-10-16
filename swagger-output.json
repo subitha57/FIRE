@@ -1160,9 +1160,6 @@
                 },
                 "title": {
                   "example": "any"
-                },
-                "userId": {
-                  "example": "any"
                 }
               }
             }

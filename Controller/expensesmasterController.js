@@ -4,17 +4,14 @@ const User = require("../Model/emailModel");
 
 exports.upsertExpense = async (req, res) => {
   //#swagger.tags = ['Master-Expenses']
-    const { id, title, userId } = req.body;
+    const { id, title } = req.body;
     try {
-      const user = await User.findById(userId);
-    if (!user) {
-      return res.status(200).json({ message: "User not found" });
-    }
+      
       if (id) {
-        const updatedExpense = await ExpensesMaster.findByIdAndUpdate(id, { title,userId }, {new: true, upsert: true })
+        const updatedExpense = await ExpensesMaster.findByIdAndUpdate(id, { title}, {new: true, upsert: true })
         res.status(200).json({ statusCode: '0', data: updatedExpense, message: 'MasterExpenses Updated Successfully' })
       } else {
-        const newExpensesMaster = await new ExpensesMaster({ title,userId }).save();
+        const newExpensesMaster = await new ExpensesMaster({ title }).save();
         res.status(200).json({ statusCode: '0', data: newExpensesMaster, message: 'MasterExpenses Added Successfully' })
       }
     } catch (error) {

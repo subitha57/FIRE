@@ -25,13 +25,19 @@ exports.upsert = async (req, res) => {
       return total + parseFloat(value); // Add the value to the total
     }, 0);
 
-    // Check if the title and expensesId already exist for the user
-    const existingExpense = await ChildExpenses.findOne({ userId, title, expensesId });
-    if (existingExpense && (!id || existingExpense._id.toString() !== id)) {
-      return res.status(400).json({
-        statusCode: "1",
-        message: "An expense with this title and expensesId already exists for this user",
-      });
+    // Check if the title already exists in the `category` field for the given `userId`
+    const existingExpense = await ChildExpenses.findOne({ userId, expensesId });
+
+    if (existingExpense) {
+      // Check if the title already exists in the `category` array
+      const titleExists = existingExpense.category.some(cat => Object.keys(cat).includes(title));
+
+      if (titleExists && (!id || existingExpense._id.toString() !== id)) {
+        return res.status(400).json({
+          statusCode: "1",
+          message: `The title '${title}' already exists in the category list for this user.`,
+        });
+      }
     }
 
     // Upsert logic (create new or update existing child expense)
