@@ -1,26 +1,24 @@
 const mongoose = require("mongoose");
-const { Schema } = mongoose;
+const Schema = mongoose.Schema;
 
-const categorySchema = new Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-});
-
-const childExpensesSchema = new Schema(
+const ChildExpensesSchema = new Schema(
   {
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
     expensesId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "ExpensesMaster",
       required: true,
     },
-    category: [categorySchema],
+    category: [
+      {
+        type: String,
+        required: true,
+      },
+    ],
     title: {
       type: String,
       required: true,
@@ -29,6 +27,6 @@ const childExpensesSchema = new Schema(
   { timestamps: true }
 );
 
-const ChildExpenses = mongoose.model("ChildExpenses", childExpensesSchema);
+const ChildExpenses = mongoose.model("ChildExpenses", ChildExpensesSchema);
 
 module.exports = ChildExpenses;
