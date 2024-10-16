@@ -1536,16 +1536,10 @@
                 "id": {
                   "example": "any"
                 },
-                "userId": {
-                  "example": "any"
-                },
                 "expensesId": {
                   "example": "any"
                 },
                 "category": {
-                  "example": "any"
-                },
-                "title": {
                   "example": "any"
                 }
               }
@@ -1599,9 +1593,6 @@
           },
           "401": {
             "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not Found"
           },
           "500": {
             "description": "Internal Server Error"

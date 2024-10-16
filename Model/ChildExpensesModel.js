@@ -3,11 +3,11 @@ const Schema = mongoose.Schema;
 
 const ChildExpensesSchema = new Schema(
   {
-    userId: {
-      type: Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+    // userId: {
+    //   type: Schema.Types.ObjectId,
+    //   ref: "User",
+    //   required: true,
+    // },
     expensesId: {
       type: Schema.Types.ObjectId,
       ref: "ExpensesMaster",
@@ -19,10 +19,10 @@ const ChildExpensesSchema = new Schema(
         required: true,
       },
     ],
-    title: {
-      type: String,
-      required: true,
-    },
+    // title: {
+    //   type: String,
+    //   required: true,
+    // },
   },
   { timestamps: true }
 );
