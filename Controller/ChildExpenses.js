@@ -136,7 +136,7 @@ exports.upsert = async (req, res) => {
         
         expensesId,
         category,
-        title,
+        
       });
 
       await newChildExpense.save();
