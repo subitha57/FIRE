@@ -23,13 +23,11 @@ exports.upsert = async (req, res) => {
       );
 
       if (duplicates.length > 0) {
-        return res
-          .status(200)
-          .json({
-            message: `Category(ies) [${duplicates.join(
-              ", "
-            )}] already exist(s) in ChildExpenses`,
-          });
+        return res.status(200).json({
+          message: `Category(ies) [${duplicates.join(
+            ", "
+          )}] already exist(s) in ChildExpenses`,
+        });
       }
 
       const updatedCategories = [...existingCategories, ...category];
