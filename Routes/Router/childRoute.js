@@ -7,6 +7,6 @@ router.post("/create", verifyToken, ExpensesChild.upsert);
 
 router.get("/all", verifyToken, ExpensesChild.getAll);
 
-// router.delete("/delete/:expenses_id", verifyToken, ExpensesChild.deleteById);
+router.delete('/delete/:id', verifyToken, ExpensesChild.delete);
 
 module.exports = router;
