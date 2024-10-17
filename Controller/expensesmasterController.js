@@ -11,7 +11,7 @@ exports.upsertExpense = async (req, res) => {
         { new: true, upsert: true }
       );
       res
-        .status(200)
+        .status(201)
         .json({
           statusCode: "0",
           data: updatedExpense,
@@ -20,7 +20,7 @@ exports.upsertExpense = async (req, res) => {
     } else {
       const newExpensesMaster = await new ExpensesMaster({ title }).save();
       res
-        .status(200)
+        .status(201)
         .json({
           statusCode: "0",
           data: newExpensesMaster,
@@ -56,13 +56,13 @@ exports.getById = async (req, res) => {
       _id: req.params.expenses_id,
     });
     if (expenses) {
-      res.status(200).json({
+      res.status(201).json({
         statusCode: "0",
         message: "expenses Id retrived successfully",
         data: expenses,
       });
     } else {
-      res.status(404).json({
+      res.status(200).json({
         message: "expenses Id not found",
       });
     }
@@ -81,11 +81,11 @@ exports.deleteById = async (req, res) => {
     });
     if (expenses) {
       await ExpensesMaster.deleteOne({ _id: req.params.expenses_id });
-      res.status(200).json({
+      res.status(201).json({
         message: "expenses data deleted successfully",
       });
     } else {
-      res.status(404).json({
+      res.status(200).json({
         message: "No expenses data found",
       });
     }

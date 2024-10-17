@@ -9,7 +9,7 @@ exports.upsert = async (req, res) => {
 
     if (!expensesId || !category || !Array.isArray(category)) {
       return res
-        .status(400)
+        .status(200)
         .json({ message: "ExpensesId and category (array) are required" });
     }
 
@@ -24,7 +24,7 @@ exports.upsert = async (req, res) => {
 
       if (duplicates.length > 0) {
         return res
-          .status(400)
+          .status(200)
           .json({
             message: `Category(ies) [${duplicates.join(
               ", "
@@ -42,7 +42,7 @@ exports.upsert = async (req, res) => {
         "title"
       );
 
-      return res.status(200).json({
+      return res.status(201).json({
         message: "ChildExpenses updated successfully with new categories",
         data: populatedExpense,
       });
@@ -76,7 +76,7 @@ exports.getAll = async (req, res) => {
       "title"
     );
 
-    return res.status(200).json({
+    return res.status(201).json({
       message: "ChildExpenses fetched successfully",
       data: childExpenses,
     });
@@ -93,16 +93,16 @@ exports.delete = async (req, res) => {
     const { id } = req.params;
 
     if (!id) {
-      return res.status(400).json({ message: "ChildExpenses ID is required" });
+      return res.status(200).json({ message: "ChildExpenses ID is required" });
     }
 
     const deletedExpense = await ChildExpenses.findByIdAndDelete(id);
 
     if (!deletedExpense) {
-      return res.status(404).json({ message: "ChildExpenses not found" });
+      return res.status(200).json({ message: "ChildExpenses not found" });
     }
 
-    return res.status(200).json({
+    return res.status(201).json({
       message: "ChildExpenses deleted successfully",
       data: deletedExpense,
     });
