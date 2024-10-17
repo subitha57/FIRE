@@ -7,45 +7,60 @@ exports.upsert = async (req, res) => {
   try {
     const { id, expensesId, category } = req.body;
 
-    if (!expensesId || !category) {
+    if (!expensesId || !category || !Array.isArray(category)) {
       return res
         .status(400)
-        .json({ message: "ExpensesId and category are required" });
+        .json({ message: "ExpensesId and category (array) are required" });
     }
 
-    if (id) {
-      const updatedExpense = await ChildExpenses.findByIdAndUpdate(
-        id,
-        { expensesId, category },
-        { new: true }
-      ).populate("expensesId", "title");
+    const existingChildExpense = await ChildExpenses.findOne({ expensesId });
 
-      if (updatedExpense) {
-        return res.status(200).json({
-          message: "ChildExpenses updated successfully",
-          data: updatedExpense,
-        });
-      } else {
-        return res.status(404).json({ message: "ChildExpenses not found" });
+    if (existingChildExpense) {
+      const existingCategories = existingChildExpense.category;
+
+      const duplicates = category.filter((cat) =>
+        existingCategories.includes(cat)
+      );
+
+      if (duplicates.length > 0) {
+        return res
+          .status(400)
+          .json({
+            message: `Category(ies) [${duplicates.join(
+              ", "
+            )}] already exist(s) in ChildExpenses`,
+          });
       }
-    } else {
-      const newChildExpense = new ChildExpenses({
-        expensesId,
-        category,
-      });
 
-      const savedExpense = await newChildExpense.save();
+      const updatedCategories = [...existingCategories, ...category];
 
-      const populatedExpense = await savedExpense.populate(
+      existingChildExpense.category = updatedCategories;
+      await existingChildExpense.save();
+
+      const populatedExpense = await existingChildExpense.populate(
         "expensesId",
         "title"
       );
 
-      return res.status(201).json({
-        message: "ChildExpenses created successfully",
+      return res.status(200).json({
+        message: "ChildExpenses updated successfully with new categories",
         data: populatedExpense,
       });
     }
+
+    const newChildExpense = new ChildExpenses({
+      expensesId,
+      category,
+    });
+
+    const savedExpense = await newChildExpense.save();
+
+    const populatedExpense = await savedExpense.populate("expensesId", "title");
+
+    return res.status(201).json({
+      message: "ChildExpenses created successfully",
+      data: populatedExpense,
+    });
   } catch (error) {
     console.error("Error in upserting child expenses:", error);
     return res.status(500).json({ message: "Internal server error" });
