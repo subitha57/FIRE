@@ -26,7 +26,7 @@ const generateOTP = () => {
 
 const generateToken = (email, userId) => {
   return jwt.sign({ email, userId }, process.env.JWT_SECRET, {
-    expiresIn: "15m",
+    expiresIn: "1h",
   });
 };
 
@@ -90,8 +90,62 @@ exports.Signin = async (req, res) => {
   }
 };
 
+// exports.verifyOTP = async (req, res) => {
+//   //#swagger.tags = ['Login-User']
+//   const { email, otp } = req.body;
+
+//   if (!email || !otp) {
+//     return res.status(200).json({ error: "Email and OTP are required" });
+//   }
+
+//   try {
+//     const user = await User.findOne({ email });
+
+//     if (!user) {
+//       return res.status(200).json({ error: "User not found" });
+//     }
+
+//     if (user.loggedIn) {
+//       return res.status(200).json({ error: "User is already logged in" });
+//     }
+
+//     const decryptedOtp = cryptr.decrypt(user.otp);
+
+//     if (decryptedOtp === otp) {
+//       const sessionId = uuidv4();
+
+//       const sessionExpiresAt = Date.now() + 14 * 60 * 1000;
+
+//       const token = generateToken(user.email, user._id);
+
+//       user.loggedIn = true;
+//       user.otp = null;
+//       user.token = token;
+//       user.sessionId = sessionId;
+//       user.sessionExpiresAt = sessionExpiresAt;
+//       await user.save();
+
+//       const userProfile = await Profile.findOne({ userId: user._id });
+
+//       res.status(201).json({
+//         success: true,
+//         message: "OTP is valid, user logged in",
+//         token,
+//         sessionId,
+//         sessionExpiresAt,
+//         loggedIn: user.loggedIn,
+//         userId: user._id,
+//         userProfile: userProfile ? true : false,
+//       });
+//     } else {
+//       res.status(200).json({ error: "Invalid OTP" });
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     res.status(200).json({ error: "Failed to verify OTP" });
+//   }
+// };
 exports.verifyOTP = async (req, res) => {
-  //#swagger.tags = ['Login-User']
   const { email, otp } = req.body;
 
   if (!email || !otp) {
@@ -114,7 +168,7 @@ exports.verifyOTP = async (req, res) => {
     if (decryptedOtp === otp) {
       const sessionId = uuidv4();
 
-      const sessionExpiresAt = Date.now() + 14 * 60 * 1000;
+      const sessionExpiresAt = Date.now() + 59 * 60 * 1000;
 
       const token = generateToken(user.email, user._id);
 
