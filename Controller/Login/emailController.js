@@ -146,6 +146,7 @@ exports.Signin = async (req, res) => {
 //   }
 // };
 exports.verifyOTP = async (req, res) => {
+  //#swagger.tags = ['Login-User']
   const { email, otp } = req.body;
 
   if (!email || !otp) {

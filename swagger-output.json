@@ -53,6 +53,9 @@
     },
     "/api/user/verify-otp": {
       "post": {
+        "tags": [
+          "Login-User"
+        ],
         "description": "",
         "parameters": [
           {
