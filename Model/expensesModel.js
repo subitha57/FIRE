@@ -6,6 +6,10 @@ const ExpensesMasterSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    active: {
+        type: Boolean,
+        required: false,
+    },
 }, { timestamps: true });
 
 module.exports = mongoose.model('ExpensesMaster', ExpensesMasterSchema);
