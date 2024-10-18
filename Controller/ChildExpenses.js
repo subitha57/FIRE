@@ -112,19 +112,25 @@ exports.delete = async (req, res) => {
 
 exports.search = async (req, res) => {
   //#swagger.tags = ['Child-Expenses']
-  const query = req.query.query; 
+  const searchQuery = req.query.q;
 
   try {
-    const childExpenses = await ChildExpenses.find({
-      category: { $regex: query, $options: "i" }, 
-    }).populate("expensesId", "title");
+    if (!searchQuery) {
+      return res.status(400).json({ message: "No search query provided" });
+    }
 
-    return res.status(200).json({
+    const results = await ChildExpenses.find({
+      category: { $regex: searchQuery, $options: "i" },
+    }).populate("expensesId", "title");
+    if (results.length === 0) {
+      return res.status(404).json({ message: "No matching results found" });
+    }
+
+    res.status(200).json({
       message: "ChildExpenses retrieved successfully",
-      data: childExpenses,
+      data: results,
     });
   } catch (error) {
-    console.error("Error in searching child expenses:", error);
-    return res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
