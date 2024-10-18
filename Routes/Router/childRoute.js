@@ -9,4 +9,6 @@ router.get("/all", verifyToken, ExpensesChild.getAll);
 
 router.delete('/delete/:id', verifyToken, ExpensesChild.delete);
 
+router.get("/search",verifyToken, ExpensesChild.searchExpenses);
+
 module.exports = router;

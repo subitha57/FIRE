@@ -109,3 +109,22 @@ exports.delete = async (req, res) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+exports.search = async (req, res) => {
+  //#swagger.tags = ['Child-Expenses']
+  const query = req.query.query; // Get the search term from query parameters
+
+  try {
+    const childExpenses = await ChildExpenses.find({
+      category: { $regex: query, $options: "i" }, // Case-insensitive search
+    }).populate("expensesId", "title");
+
+    return res.status(200).json({
+      message: "ChildExpenses retrieved successfully",
+      data: childExpenses,
+    });
+  } catch (error) {
+    console.error("Error in searching child expenses:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
