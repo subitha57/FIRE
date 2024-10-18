@@ -112,11 +112,11 @@ exports.delete = async (req, res) => {
 
 exports.search = async (req, res) => {
   //#swagger.tags = ['Child-Expenses']
-  const query = req.query.query; // Get the search term from query parameters
+  const query = req.query.query; 
 
   try {
     const childExpenses = await ChildExpenses.find({
-      category: { $regex: query, $options: "i" }, // Case-insensitive search
+      category: { $regex: query, $options: "i" }, 
     }).populate("expensesId", "title");
 
     return res.status(200).json({
