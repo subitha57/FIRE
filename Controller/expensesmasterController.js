@@ -20,7 +20,7 @@ exports.upsertExpense = async (req, res) => {
       const newExpensesMaster = await new ExpensesMaster({
         title,
         active: true,
-      }).save(); 
+      }).save();
       res.status(201).json({
         statusCode: "0",
         data: newExpensesMaster,
@@ -86,11 +86,13 @@ exports.deleteById = async (req, res) => {
       if (!expenses.active) {
         await ChildExpenses.deleteMany({ expensesId: req.params.expenses_id });
         res.status(201).json({
-          message: "Expenses data marked as deleted successfully",
+          message: "Expenses Inactivated successfully",
+          data: expenses,
         });
       } else {
         res.status(201).json({
-          message: "Expenses data reactivated successfully",
+          message: "Expenses Activated successfully",
+          data: expenses,
         });
       }
     } else {
