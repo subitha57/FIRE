@@ -913,6 +913,9 @@
     },
     "/api/personal/view": {
       "get": {
+        "tags": [
+          "User-Expenses Allocation"
+        ],
         "description": "",
         "parameters": [
           {
@@ -922,6 +925,9 @@
           }
         ],
         "responses": {
+          "200": {
+            "description": "OK"
+          },
           "401": {
             "description": "Unauthorized"
           }
