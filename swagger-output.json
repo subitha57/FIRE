@@ -809,7 +809,7 @@
     "/api/personal/create": {
       "post": {
         "tags": [
-          "User-Expenses Allocation"
+          "User-ExpensesAllocation"
         ],
         "description": "",
         "parameters": [
@@ -824,13 +824,51 @@
             "schema": {
               "type": "object",
               "properties": {
-                "month": {
-                  "example": "any"
-                },
-                "year": {
-                  "example": "any"
-                },
                 "userId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/personal/update/{id}": {
+      "put": {
+        "tags": [
+          "User-ExpensesAllocation"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "titles": {
                   "example": "any"
                 }
               }
@@ -846,90 +884,9 @@
           },
           "401": {
             "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/api/personal/getById/{id}": {
-      "get": {
-        "tags": [
-          "User-Expenses Allocation"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
           },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/api/personal/update/{id}": {
-      "put": {
-        "tags": [
-          "User-Expenses Allocation"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "201": {
-            "description": "Created"
-          },
-          "401": {
-            "description": "Unauthorized"
-          }
-        }
-      }
-    },
-    "/api/personal/view": {
-      "get": {
-        "tags": [
-          "User-Expenses Allocation"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -937,7 +894,7 @@
     "/api/personal/delete/{id}": {
       "delete": {
         "tags": [
-          "User-Expenses Allocation"
+          "User-ExpensesAllocation"
         ],
         "description": "",
         "parameters": [
@@ -962,17 +919,26 @@
           },
           "401": {
             "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
-    "/api/personal/getall": {
+    "/api/personal/getById/{id}": {
       "get": {
         "tags": [
-          "User-Expenses Allocation"
+          "User-ExpensesAllocation"
         ],
         "description": "",
         "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
           {
             "name": "authorization",
             "in": "header",
@@ -983,8 +949,40 @@
           "200": {
             "description": "OK"
           },
+          "201": {
+            "description": "Created"
+          },
           "401": {
             "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/personal/getAll": {
+      "get": {
+        "tags": [
+          "User-ExpensesAllocation"
+        ],
+        "description": "",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }

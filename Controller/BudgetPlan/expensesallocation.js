@@ -1,228 +1,158 @@
 const ExpensesAllocation = require("../../Model/ExpensesAllocation");
-const User = require("../../Model/emailModel");
 const ExpensesMaster = require("../../Model/expensesModel");
+const User = require("../../Model/emailModel");
 
-const formatAmount = (amount) => {
-  return new Intl.NumberFormat("en-IN").format(amount);
+const getCurrentMonthYear = () => {
+  const currentDate = new Date();
+  const month = currentDate.toLocaleString("default", { month: "long" });
+  const year = currentDate.getFullYear();
+  return { month, year };
 };
 
 exports.Create = async (req, res) => {
-  //#swagger.tags = ['User-Expenses Allocation']
+  //#swagger.tags = ['User-ExpensesAllocation']
   try {
-    const { month, year, userId } = req.body;
+    const { userId } = req.body;
+    const { month, year } = getCurrentMonthYear();
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(200).json({ status: 0, message: "User not found" });
-    }
+    const expensesMaster = await ExpensesMaster.find({ active: true });
+    const titles = expensesMaster.map((item) => ({
+      title: item.title,
+      amount: 0,
+    }));
 
-    const activeExpenses = await ExpensesMaster.find({ active: true }).select("title");
-    if (activeExpenses.length === 0) {
-      return res.status(200).json({ status: 0, message: "No active expense categories found" });
-    }
-
-    const dynamicCategories = {};
-    activeExpenses.forEach(({ title }) => {
-      const amount = req.body[title] || 0;
-      if (amount < 0) {
-        return res.status(200).json({ status: 0, message: `Invalid amount for ${title}` });
-      }
-      dynamicCategories[title] = amount; // Ensure you capture the amount for each category
+    const newExpensesAllocation = new ExpensesAllocation({
+      userId,
+      month,
+      year,
+      titles,
     });
 
-    const totalExpenses = Object.values(dynamicCategories).reduce((sum, value) => sum + Number(value), 0);
-
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    const currentMonthIndex = monthNames.indexOf(month);
-    if (currentMonthIndex === -1) {
-      return res.status(200).json({ status: 0, message: "Invalid month provided" });
-    }
-
-    const createdBudgets = [];
-    for (let i = currentMonthIndex; i < 12; i++) {
-      const futureMonth = monthNames[i];
-      const existingBudget = await ExpensesAllocation.findOne({ month: futureMonth, year, userId });
-      if (existingBudget) continue;
-
-      const newBudget = new ExpensesAllocation({
-        month: futureMonth,
-        year,
-        categories: { ...dynamicCategories }, // Assign dynamic categories with amounts
-        totalExpenses,
-        userId,
-      });
-
-      await newBudget.save();
-      createdBudgets.push(newBudget);
-    }
-
-    if (createdBudgets.length === 0) {
-      return res.status(200).json({
-        status: 0,
-        message: "Budgets for all months in the year already exist",
-      });
-    }
-
-    return res.status(201).json({
-      status: 1,
-      message: "Expenses Allocation entries created successfully",
-      budgets: createdBudgets.map((budget) => ({
-        id: budget._id,
-        month: budget.month,
-        year: budget.year,
-        categories: budget.categories,
-        totalExpenses: budget.totalExpenses,
-        userId: budget.userId,
-      })),
+    const savedAllocation = await newExpensesAllocation.save();
+    res.status(201).json({
+      statusCode: "1",
+      message: "Expenses allocation created successfully",
+      _id: savedAllocation._id,
+      expenses: {
+        month: savedAllocation.month,
+        year: savedAllocation.year,
+        titles: savedAllocation.titles,
+      },
     });
-  } catch (error) {
-    return res.status(200).json({
-      status: 0,
-      message: "Failed to create budget entry",
-      error: error.message,
-    });
-  }
-};
-
-exports.getAll = async (req, res) => {
-  //#swagger.tags = ['User-Expenses Allocation']
-  try {
-    const allocations = await ExpensesAllocation.find();
-    return res.status(200).json({
-      status: 1,
-      message: "Expenses Allocation entries fetched successfully",
-      allocations,
-    });
-  } catch (error) {
-    return res.status(200).json({
-      status: 0,
-      message: "Failed to fetch expenses allocation entries",
-      error: error.message,
-    });
-  }
-};
-
-exports.getById = async (req, res) => {
-  //#swagger.tags = ['User-Expenses Allocation']
-  try {
-    const { id } = req.params;
-    const allocation = await ExpensesAllocation.findById(id);
-
-    if (!allocation) {
-      return res
-        .status(200)
-        .json({ status: 0, message: "Expenses Allocation entry not found" });
-    }
-
-    return res.status(200).json({
-      status: 1,
-      message: "Expenses Allocation entry fetched successfully",
-      allocation,
-    });
-  } catch (error) {
-    return res.status(200).json({
-      status: 0,
-      message: "Failed to fetch expenses allocation entry",
-      error: error.message,
-    });
+  } catch (err) {
+    res.status(500).json({ statusCode: "0", message: err.message });
   }
 };
 
 exports.update = async (req, res) => {
-  //#swagger.tags = ['User-Expenses Allocation']
+   //#swagger.tags = ['User-ExpensesAllocation']
   try {
     const { id } = req.params;
-    const updateData = req.body;
+    const { titles } = req.body;
 
-    const updatedAllocation = await ExpensesAllocation.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true }
-    );
-
-    if (!updatedAllocation) {
-      return res.status(200).json({
-        status: 0,
-        message: "Failed to update Expenses Allocation entry",
-      });
+    const existingAllocation = await ExpensesAllocation.findById(id);
+    if (!existingAllocation) {
+      return res
+        .status(200)
+        .json({ statusCode: "0", message: "Expenses allocation not found" });
     }
 
-    return res.status(201).json({
-      status: 1,
-      message: "Expenses Allocation entry updated successfully",
-      allocation: updatedAllocation,
+    const updatedTitles = existingAllocation.titles.map((existingTitle) => {
+      const matchingTitle = titles.find((t) => t.title === existingTitle.title);
+      if (matchingTitle) {
+        return { ...existingTitle, amount: matchingTitle.amount };
+      }
+      return existingTitle;
     });
-  } catch (error) {
-    return res.status(200).json({
-      status: 0,
-      message: "Failed to update expenses allocation entry",
-      error: error.message,
+
+    existingAllocation.titles = updatedTitles;
+
+    const updatedExpenses = await existingAllocation.save();
+
+    res.status(201).json({
+      statusCode: "1",
+      message: "Expenses allocation updated successfully",
+      _id: updatedExpenses._id,
+      expenses: {
+        month: updatedExpenses.month,
+        year: updatedExpenses.year,
+        titles: updatedExpenses.titles,
+      },
     });
+  } catch (err) {
+    res.status(500).json({ statusCode: "0", message: err.message });
   }
 };
 
 exports.delete = async (req, res) => {
-  //#swagger.tags = ['User-Expenses Allocation']
+   //#swagger.tags = ['User-ExpensesAllocation']
   try {
     const { id } = req.params;
 
-    const deletedAllocation = await ExpensesAllocation.findByIdAndDelete(id);
-
-    if (!deletedAllocation) {
-      return res.status(200).json({
-        status: 0,
-        message: "Failed to delete Expenses Allocation entry",
-      });
+    const deletedExpenses = await ExpensesAllocation.findByIdAndDelete(id);
+    if (!deletedExpenses) {
+      return res
+        .status(200)
+        .json({ statusCode: "0", message: "Expenses allocation not found" });
     }
 
-    return res.status(201).json({
-      status: 1,
-      message: "Expenses Allocation entry deleted successfully",
-    });
-  } catch (error) {
-    return res.status(200).json({
-      status: 0,
-      message: "Failed to delete expenses allocation entry",
-      error: error.message,
-    });
+    res
+      .status(201)
+      .json({
+        statusCode: "1",
+        message: "Expenses allocation deleted successfully",
+      });
+  } catch (err) {
+    res.status(500).json({ statusCode: "0", message: err.message });
   }
 };
 
-exports.view = async (req, res) => {
-  //#swagger.tags = ['User-Expenses Allocation']
+exports.getById = async (req, res) => {
+   //#swagger.tags = ['User-ExpensesAllocation']
   try {
-    const { month, year, userId } = req.params;
+    const { id } = req.params;
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(200).json({ status: 0, message: "User not found" });
-    }
+    const expenses = await ExpensesAllocation.findById(id).populate(
+      "userId",
+      "email"
+    );
 
-    const allocation = await ExpensesAllocation.findOne({
-      month,
-      year,
-      userId,
-    });
-
-    if (!allocation) {
+    if (!expenses) {
       return res
         .status(200)
-        .json({
-          status: 0,
-          message:
-            "No expenses allocation found for the specified month and year",
-        });
+        .json({ statusCode: "0", message: "Expenses allocation not found" });
     }
 
-    return res.status(200).json({
-      status: 1,
-      message: "Expenses Allocation entry fetched successfully",
-      allocation,
+    res.status(201).json({
+      statusCode: "1",
+      message: "Expenses allocation retrieved successfully",
+      _id: expenses._id,
+      expenses: {
+        month: expenses.month,
+        year: expenses.year,
+        titles: expenses.titles,
+      },
+      userId: expenses.userId.email,
+    });
+  } catch (err) {
+    res.status(500).json({ statusCode: "0", message: err.message });
+  }
+};
+
+exports.getAll = async (req, res) => {
+   //#swagger.tags = ['User-ExpensesAllocation']
+  try {
+    const expensesAllocations = await ExpensesAllocation.find();
+
+    res.status(201).json({
+      statusCode: "1",
+      message: "Expenses allocations retrieved successfully",
+      expenses: expensesAllocations,
     });
   } catch (error) {
-    return res.status(200).json({
-      status: 0,
-      message: "Failed to fetch expenses allocation entry",
+    res.status(500).json({
+      statusCode: "0",
+      message: "Error retrieving expenses allocations",
       error: error.message,
     });
   }
