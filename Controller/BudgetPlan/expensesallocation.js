@@ -159,6 +159,7 @@ exports.Create = async (req, res) => {
   try {
     const { month, year, userId } = req.body;
 
+    // Fetch the user
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
@@ -166,6 +167,7 @@ exports.Create = async (req, res) => {
       });
     }
 
+    // Fetch all active titles from ExpensesMaster
     const expensesTitles = await ExpensesMaster.find({ active: true }).select('title');
     if (expensesTitles.length === 0) {
       return res.status(400).json({
@@ -173,16 +175,32 @@ exports.Create = async (req, res) => {
       });
     }
 
+    // Prepare a dynamic categories object from request body based on titles from ExpensesMaster
     const dynamicCategories = {};
     expensesTitles.forEach(({ title }) => {
-      dynamicCategories[title] = req.body[title] || 0;
+      // Use the title as the key and retrieve its value from the request body
+      dynamicCategories[title] = req.body[title] || 0; // Default to 0 if not provided in the request body
     });
 
+    // Calculate total expenses dynamically
     const totalExpenses = Object.values(dynamicCategories).reduce((sum, value) => sum + Number(value), 0);
 
-    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-    let currentMonthIndex = monthNames.indexOf(month);
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ];
 
+    let currentMonthIndex = monthNames.indexOf(month);
     if (currentMonthIndex === -1) {
       return res.status(400).json({ message: "Invalid month provided" });
     }
@@ -192,6 +210,7 @@ exports.Create = async (req, res) => {
     for (let i = currentMonthIndex; i < 12; i++) {
       const futureMonth = monthNames[i];
 
+      // Check if a budget for the current month and year already exists
       const existingBudget = await ExpensesAllocation.findOne({
         month: futureMonth,
         year,
@@ -202,13 +221,14 @@ exports.Create = async (req, res) => {
         continue;
       }
 
+      // Create a new budget entry
       const newBudget = new ExpensesAllocation({
         month: futureMonth,
         year,
         categories: {
           ...dynamicCategories,
-          totalExpenses,
         },
+        totalExpenses,  // Ensure totalExpenses is stored
         userId,
       });
 
@@ -234,6 +254,7 @@ exports.Create = async (req, res) => {
             return formatted;
           }, {}),
         },
+        totalExpenses: budget.totalExpenses,  // Include totalExpenses in the response
         userId: budget.userId,
       })),
     });
@@ -244,6 +265,7 @@ exports.Create = async (req, res) => {
     });
   }
 };
+
 
 exports.getById = async (req, res) => {
   //#swagger.tags = ['User-Expenses Allocation']
