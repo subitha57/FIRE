@@ -9,9 +9,9 @@ exports.upsert = async (req, res) => {
     const { id, expensesId, category } = req.body;
 
     if (!expensesId || !category || !Array.isArray(category)) {
-      return res.status(200).json({
-        message: "ExpensesId and category (array) are required",
-        statusCode: "1",
+      return res.status(200).json({ 
+        message: "ExpensesId and category (array) are required", 
+        statusCode: "1" 
       });
     }
 
@@ -26,10 +26,8 @@ exports.upsert = async (req, res) => {
 
       if (duplicates.length > 0) {
         return res.status(200).json({
-          message: `Category(ies) [${duplicates.join(
-            ", "
-          )}] already exist(s) in ChildExpenses`,
-          statusCode: "1",
+          message: `Category(ies) [${duplicates.join(", ")}] already exist(s) in ChildExpenses`,
+          statusCode: "1"
         });
       }
 
@@ -46,7 +44,7 @@ exports.upsert = async (req, res) => {
       return res.status(201).json({
         message: "ChildExpenses updated successfully with new categories",
         data: populatedExpense,
-        statusCode: "0",
+        statusCode: "0"
       });
     }
 
@@ -62,13 +60,13 @@ exports.upsert = async (req, res) => {
     return res.status(201).json({
       message: "ChildExpenses created successfully",
       data: populatedExpense,
-      statusCode: "0",
+      statusCode: "0"
     });
   } catch (error) {
     console.error("Error in upserting child expenses:", error);
-    return res.status(200).json({
-      message: "Internal server error",
-      statusCode: "1",
+    return res.status(200).json({ 
+      message: "Internal server error", 
+      statusCode: "1" 
     });
   }
 };
@@ -85,13 +83,13 @@ exports.getAll = async (req, res) => {
     return res.status(201).json({
       message: "ChildExpenses fetched successfully",
       data: childExpenses,
-      statusCode: "0",
+      statusCode: "0"
     });
   } catch (error) {
     console.error("Error in fetching child expenses:", error);
-    return res.status(200).json({
-      message: "Internal server error",
-      statusCode: "1",
+    return res.status(200).json({ 
+      message: "Internal server error", 
+      statusCode: "1" 
     });
   }
 };
@@ -103,31 +101,31 @@ exports.delete = async (req, res) => {
     const { id } = req.params;
 
     if (!id) {
-      return res.status(200).json({
-        message: "ChildExpenses ID is required",
-        statusCode: "1",
+      return res.status(200).json({ 
+        message: "ChildExpenses ID is required", 
+        statusCode: "1" 
       });
     }
 
     const deletedExpense = await ChildExpenses.findByIdAndDelete(id);
 
     if (!deletedExpense) {
-      return res.status(200).json({
-        message: "ChildExpenses not found",
-        statusCode: "1",
+      return res.status(200).json({ 
+        message: "ChildExpenses not found", 
+        statusCode: "1" 
       });
     }
 
     return res.status(201).json({
       message: "ChildExpenses deleted successfully",
       data: deletedExpense,
-      statusCode: "0",
+      statusCode: "0"
     });
   } catch (error) {
     console.error("Error in deleting child expenses:", error);
-    return res.status(200).json({
-      message: "Internal server error",
-      statusCode: "1",
+    return res.status(200).json({ 
+      message: "Internal server error", 
+      statusCode: "1" 
     });
   }
 };
@@ -139,7 +137,7 @@ exports.search = async (req, res) => {
 
   try {
     if (!searchTerm) {
-      return res.status(400).json({
+      return res.status(200).json({
         message: "Search term is required",
         data: [],
         statusCode: "1",
@@ -171,9 +169,9 @@ exports.search = async (req, res) => {
     });
   } catch (err) {
     console.error("Error in searching child expenses:", err);
-    return res.status(500).json({
+    return res.status(200).json({
       statusCode: "1",
-      message: err.message,
+      message: "Internal server error",
     });
   }
 };
