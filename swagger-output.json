@@ -830,42 +830,6 @@
                 "year": {
                   "example": "any"
                 },
-                "housing": {
-                  "example": "any"
-                },
-                "entertainment": {
-                  "example": "any"
-                },
-                "transportation": {
-                  "example": "any"
-                },
-                "loans": {
-                  "example": "any"
-                },
-                "insurance": {
-                  "example": "any"
-                },
-                "taxes": {
-                  "example": "any"
-                },
-                "food": {
-                  "example": "any"
-                },
-                "savingsAndInvestments": {
-                  "example": "any"
-                },
-                "pets": {
-                  "example": "any"
-                },
-                "giftsAndDonations": {
-                  "example": "any"
-                },
-                "personalCare": {
-                  "example": "any"
-                },
-                "legal": {
-                  "example": "any"
-                },
                 "userId": {
                   "example": "any"
                 }

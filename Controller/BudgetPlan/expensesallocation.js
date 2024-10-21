@@ -1,5 +1,155 @@
+// const ExpensesAllocation = require("../../Model/personalModel");
+// const User = require("../../Model/emailModel");
+
+// const formatAmount = (amount) => {
+//   return new Intl.NumberFormat("en-IN").format(amount);
+// };
+
+// exports.Create = async (req, res) => {
+//   //#swagger.tags = ['User-Expenses Allocation']
+//   try {
+//     const {
+//       month,
+//       year,
+//       housing,
+//       entertainment,
+//       transportation,
+//       loans,
+//       insurance,
+//       taxes,
+//       food,
+//       savingsAndInvestments,
+//       pets,
+//       giftsAndDonations,
+//       personalCare,
+//       legal,
+//       userId,
+//     } = req.body;
+
+//     const user = await User.findById(userId);
+//     if (!user) {
+//       return res.status(404).json({
+//         message: "User not found",
+//       });
+//     }
+
+//     const monthNames = [
+//       "January",
+//       "February",
+//       "March",
+//       "April",
+//       "May",
+//       "June",
+//       "July",
+//       "August",
+//       "September",
+//       "October",
+//       "November",
+//       "December",
+//     ];
+
+//     let currentMonthIndex = monthNames.indexOf(month);
+//     if (currentMonthIndex === -1) {
+//       return res.status(400).json({ message: "Invalid month provided" });
+//     }
+
+//     const totalExpenses =
+//       Number(housing) +
+//       Number(entertainment) +
+//       Number(transportation) +
+//       Number(loans) +
+//       Number(insurance) +
+//       Number(taxes) +
+//       Number(food) +
+//       Number(savingsAndInvestments) +
+//       Number(pets) +
+//       Number(giftsAndDonations) +
+//       Number(personalCare) +
+//       Number(legal);
+
+//     const createdBudgets = [];
+
+//     for (let i = currentMonthIndex; i < 12; i++) {
+//       const futureMonth = monthNames[i];
+
+//       const existingBudget = await ExpensesAllocation.findOne({
+//         month: futureMonth,
+//         year,
+//         userId,
+//       });
+
+//       if (existingBudget) {
+//         continue;
+//       }
+
+//       const newBudget = new ExpensesAllocation({
+//         month: futureMonth,
+//         year,
+//         categories: {
+//           housing,
+//           entertainment,
+//           transportation,
+//           loans,
+//           insurance,
+//           taxes,
+//           food,
+//           savingsAndInvestments,
+//           pets,
+//           giftsAndDonations,
+//           personalCare,
+//           legal,
+//           totalExpenses,
+//         },
+//         userId,
+//       });
+
+//       await newBudget.save();
+//       createdBudgets.push(newBudget);
+//     }
+
+//     if (createdBudgets.length === 0) {
+//       return res.status(400).json({
+//         message: "Budgets for all months in the year already exist",
+//       });
+//     }
+
+//     return res.status(201).json({
+//       message: "Expenses Allocation entries created successfully",
+//       budgets: createdBudgets.map((budget) => ({
+//         id: budget._id,
+//         month: budget.month,
+//         year: budget.year,
+//         categories: {
+//           housing: formatAmount(budget.categories.housing),
+//           entertainment: formatAmount(budget.categories.entertainment),
+//           transportation: formatAmount(budget.categories.transportation),
+//           loans: formatAmount(budget.categories.loans),
+//           insurance: formatAmount(budget.categories.insurance),
+//           taxes: formatAmount(budget.categories.taxes),
+//           food: formatAmount(budget.categories.food),
+//           savingsAndInvestments: formatAmount(
+//             budget.categories.savingsAndInvestments
+//           ),
+//           pets: formatAmount(budget.categories.pets),
+//           giftsAndDonations: formatAmount(budget.categories.giftsAndDonations),
+//           personalCare: formatAmount(budget.categories.personalCare),
+//           legal: formatAmount(budget.categories.legal),
+//           totalExpenses: formatAmount(budget.categories.totalExpenses),
+//         },
+//         userId: budget.userId,
+//       })),
+//     });
+//   } catch (error) {
+//     return res.status(500).json({
+//       message: "Failed to create budget entry",
+//       error: error.message,
+//     });
+//   }
+// };
+
 const ExpensesAllocation = require("../../Model/personalModel");
 const User = require("../../Model/emailModel");
+const ExpensesMaster = require("../../Model/expensesModel"); // Import Master Expenses model
 
 const formatAmount = (amount) => {
   return new Intl.NumberFormat("en-IN").format(amount);
@@ -11,27 +161,34 @@ exports.Create = async (req, res) => {
     const {
       month,
       year,
-      housing,
-      entertainment,
-      transportation,
-      loans,
-      insurance,
-      taxes,
-      food,
-      savingsAndInvestments,
-      pets,
-      giftsAndDonations,
-      personalCare,
-      legal,
       userId,
     } = req.body;
 
+    // Fetch the user
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
         message: "User not found",
       });
     }
+
+    // Fetch all active titles from ExpensesMaster
+    const expensesTitles = await ExpensesMaster.find({ active: true }).select('title');
+    if (expensesTitles.length === 0) {
+      return res.status(400).json({
+        message: "No active expense categories found",
+      });
+    }
+
+    // Prepare a dynamic categories object from request body based on titles from ExpensesMaster
+    const dynamicCategories = {};
+    expensesTitles.forEach(({ title }) => {
+      // Use the title as the key and retrieve its value from the request body
+      dynamicCategories[title] = req.body[title] || 0; // Default to 0 if not provided in the request body
+    });
+
+    // Calculate total expenses dynamically
+    const totalExpenses = Object.values(dynamicCategories).reduce((sum, value) => sum + Number(value), 0);
 
     const monthNames = [
       "January",
@@ -53,20 +210,6 @@ exports.Create = async (req, res) => {
       return res.status(400).json({ message: "Invalid month provided" });
     }
 
-    const totalExpenses =
-      Number(housing) +
-      Number(entertainment) +
-      Number(transportation) +
-      Number(loans) +
-      Number(insurance) +
-      Number(taxes) +
-      Number(food) +
-      Number(savingsAndInvestments) +
-      Number(pets) +
-      Number(giftsAndDonations) +
-      Number(personalCare) +
-      Number(legal);
-
     const createdBudgets = [];
 
     for (let i = currentMonthIndex; i < 12; i++) {
@@ -86,19 +229,8 @@ exports.Create = async (req, res) => {
         month: futureMonth,
         year,
         categories: {
-          housing,
-          entertainment,
-          transportation,
-          loans,
-          insurance,
-          taxes,
-          food,
-          savingsAndInvestments,
-          pets,
-          giftsAndDonations,
-          personalCare,
-          legal,
-          totalExpenses,
+          ...dynamicCategories,
+          totalExpenses, // Add total expenses as a category
         },
         userId,
       });
@@ -120,21 +252,10 @@ exports.Create = async (req, res) => {
         month: budget.month,
         year: budget.year,
         categories: {
-          housing: formatAmount(budget.categories.housing),
-          entertainment: formatAmount(budget.categories.entertainment),
-          transportation: formatAmount(budget.categories.transportation),
-          loans: formatAmount(budget.categories.loans),
-          insurance: formatAmount(budget.categories.insurance),
-          taxes: formatAmount(budget.categories.taxes),
-          food: formatAmount(budget.categories.food),
-          savingsAndInvestments: formatAmount(
-            budget.categories.savingsAndInvestments
-          ),
-          pets: formatAmount(budget.categories.pets),
-          giftsAndDonations: formatAmount(budget.categories.giftsAndDonations),
-          personalCare: formatAmount(budget.categories.personalCare),
-          legal: formatAmount(budget.categories.legal),
-          totalExpenses: formatAmount(budget.categories.totalExpenses),
+          ...Object.keys(budget.categories).reduce((formatted, key) => {
+            formatted[key] = formatAmount(budget.categories[key]);
+            return formatted;
+          }, {}),
         },
         userId: budget.userId,
       })),

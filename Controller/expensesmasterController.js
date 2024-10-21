@@ -108,26 +108,3 @@ exports.deleteById = async (req, res) => {
   }
 };
 
-// exports.searchExpenses = async (req, res) => {
-//   //#swagger.tags = ['Master-Expenses']
-//   const { query } = req.query;
-
-//   try {
-//     const expenses = await ExpensesMaster.find({
-//       title: { $regex: query, $options: "i" },
-//       active: true,
-//     });
-
-//     res.status(200).json({
-//       statusCode: "0",
-//       message: "Expenses data retrieved successfully",
-//       data: expenses,
-//     });
-//   } catch (error) {
-//     res.status(500).json({
-//       statusCode: "1",
-//       message: "Failed to retrieve expenses data",
-//       error: error.message,
-//     });
-//   }
-// };
