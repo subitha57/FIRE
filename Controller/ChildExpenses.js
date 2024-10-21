@@ -141,7 +141,7 @@ exports.search = async (req, res) => {
     if (!searchTerm) {
       return res.status(200).json({
         message: "Search term is required",
-        data: [],
+        data: [], // Ensure data is always present
         statusCode: "1",
       });
     }
@@ -153,7 +153,7 @@ exports.search = async (req, res) => {
     if (searchResult.length === 0) {
       return res.status(200).json({
         message: "No matching results found",
-        data: [],
+        data: [], // Still returning an empty array for data
         statusCode: "0",
       });
     }
@@ -174,6 +174,7 @@ exports.search = async (req, res) => {
     return res.status(200).json({
       statusCode: "1",
       message: "Internal server error",
+      data: [], // Ensure data is always included in error responses as well
     });
   }
 };
