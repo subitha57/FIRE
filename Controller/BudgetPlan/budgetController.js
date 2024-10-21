@@ -1,5 +1,5 @@
 const Budget = require("../../Model/budgetModel");
-const ExpensesAllocation = require("../../Model/personalModel");
+const ExpensesAllocation = require("../../Model/ExpensesAllocation");
 const User = require("../../Model/emailModel");
 
 exports.Create = async (req, res) => {
