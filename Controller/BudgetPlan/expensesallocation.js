@@ -86,23 +86,41 @@ const formatAmount = (amount) => {
 
 exports.Create = async (req, res) => {
   //#swagger.tags = ['User-Expenses Allocation']
+ 
   try {
     const { month, year, userId } = req.body;
 
-    // Fetch active expense categories from ExpensesMaster (assuming this schema exists)
-    const activeExpenses = await ExpensesMaster.find({ active: true });
+    // Log request data to see what's being passed
+    console.log("Request Body:", req.body);
 
-    // Dynamically create categories object from the request body
+    // Fetch active expense categories from ExpensesMaster
+    const activeExpenses = await ExpensesMaster.find({ active: true });
+    
+    // Log fetched active expenses
+    console.log("Active Expenses:", activeExpenses);
+
+    // Check if active expenses were found
+    if (!activeExpenses || activeExpenses.length === 0) {
+      return res.status(400).json({ status: 0, message: "No active expense categories found" });
+    }
+
+    // Dynamically create categories object from request body
     const dynamicCategories = {};
     activeExpenses.forEach(({ title }) => {
       dynamicCategories[title] = req.body[title] || 0; // Assign the amount from req.body, default to 0 if missing
     });
+
+    // Log dynamically created categories
+    console.log("Categories:", dynamicCategories);
 
     // Calculate total expenses by summing the category amounts
     const totalExpenses = Object.values(dynamicCategories).reduce(
       (sum, value) => sum + Number(value),
       0
     );
+
+    // Log total expenses
+    console.log("Total Expenses:", totalExpenses);
 
     // Create a new expense allocation entry
     const newExpenseAllocation = new ExpenseAllocation({
@@ -123,6 +141,7 @@ exports.Create = async (req, res) => {
     });
 
   } catch (error) {
+    // Log the error to get more details
     console.error("Error creating expenses allocation:", error);
     return res.status(500).json({ status: 0, message: "Server error" });
   }
