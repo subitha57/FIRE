@@ -156,34 +156,33 @@ const formatAmount = (amount) => {
 };
 
 exports.Create = async (req, res) => {
+  //#swagger.tags = ['User-Expenses Allocation']
   try {
     const { month, year, userId } = req.body;
 
-    // Fetch the user
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    // Fetch all active titles from ExpensesMaster
-    const expensesTitles = await ExpensesMaster.find({ active: true }).select('title');
-    if (expensesTitles.length === 0) {
-      return res.status(400).json({
-        message: "No active expense categories found",
-      });
+    const activeExpenses = await ExpensesMaster.find({ active: true }).select(
+      "title"
+    );
+    if (activeExpenses.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "No active expense categories found" });
     }
 
-    // Prepare a dynamic categories object from request body based on titles from ExpensesMaster
     const dynamicCategories = {};
-    expensesTitles.forEach(({ title }) => {
-      // Use the title as the key and retrieve its value from the request body
-      dynamicCategories[title] = req.body[title] || 0; // Default to 0 if not provided in the request body
+    activeExpenses.forEach(({ title }) => {
+      dynamicCategories[title] = req.body[title] || 0;
     });
 
-    // Calculate total expenses dynamically
-    const totalExpenses = Object.values(dynamicCategories).reduce((sum, value) => sum + Number(value), 0);
+    const totalExpenses = Object.values(dynamicCategories).reduce(
+      (sum, value) => sum + Number(value),
+      0
+    );
 
     const monthNames = [
       "January",
@@ -199,36 +198,29 @@ exports.Create = async (req, res) => {
       "November",
       "December",
     ];
-
-    let currentMonthIndex = monthNames.indexOf(month);
+    const currentMonthIndex = monthNames.indexOf(month);
     if (currentMonthIndex === -1) {
       return res.status(400).json({ message: "Invalid month provided" });
     }
 
     const createdBudgets = [];
-
     for (let i = currentMonthIndex; i < 12; i++) {
       const futureMonth = monthNames[i];
 
-      // Check if a budget for the current month and year already exists
       const existingBudget = await ExpensesAllocation.findOne({
         month: futureMonth,
         year,
         userId,
       });
-
       if (existingBudget) {
         continue;
       }
 
-      // Create a new budget entry
       const newBudget = new ExpensesAllocation({
         month: futureMonth,
         year,
-        categories: {
-          ...dynamicCategories,
-        },
-        totalExpenses,  // Ensure totalExpenses is stored
+        categories: { ...dynamicCategories },
+        totalExpenses,
         userId,
       });
 
@@ -237,9 +229,9 @@ exports.Create = async (req, res) => {
     }
 
     if (createdBudgets.length === 0) {
-      return res.status(400).json({
-        message: "Budgets for all months in the year already exist",
-      });
+      return res
+        .status(400)
+        .json({ message: "Budgets for all months in the year already exist" });
     }
 
     return res.status(201).json({
@@ -248,13 +240,8 @@ exports.Create = async (req, res) => {
         id: budget._id,
         month: budget.month,
         year: budget.year,
-        categories: {
-          ...Object.keys(budget.categories).reduce((formatted, key) => {
-            formatted[key] = budget.categories[key];
-            return formatted;
-          }, {}),
-        },
-        totalExpenses: budget.totalExpenses,  // Include totalExpenses in the response
+        categories: budget.categories,
+        totalExpenses: budget.totalExpenses,
         userId: budget.userId,
       })),
     });
@@ -265,7 +252,6 @@ exports.Create = async (req, res) => {
     });
   }
 };
-
 
 exports.getById = async (req, res) => {
   //#swagger.tags = ['User-Expenses Allocation']
@@ -344,16 +330,21 @@ exports.update = async (req, res) => {
     budget.month = month || budget.month;
     budget.year = year || budget.year;
     budget.categories.housing = housing || budget.categories.housing;
-    budget.categories.entertainment = entertainment || budget.categories.entertainment;
-    budget.categories.transportation = transportation || budget.categories.transportation;
+    budget.categories.entertainment =
+      entertainment || budget.categories.entertainment;
+    budget.categories.transportation =
+      transportation || budget.categories.transportation;
     budget.categories.loans = loans || budget.categories.loans;
     budget.categories.insurance = insurance || budget.categories.insurance;
     budget.categories.taxes = taxes || budget.categories.taxes;
     budget.categories.food = food || budget.categories.food;
-    budget.categories.savingsAndInvestments = savingsAndInvestments || budget.categories.savingsAndInvestments;
+    budget.categories.savingsAndInvestments =
+      savingsAndInvestments || budget.categories.savingsAndInvestments;
     budget.categories.pets = pets || budget.categories.pets;
-    budget.categories.giftsAndDonations = giftsAndDonations || budget.categories.giftsAndDonations;
-    budget.categories.personalCare = personalCare || budget.categories.personalCare;
+    budget.categories.giftsAndDonations =
+      giftsAndDonations || budget.categories.giftsAndDonations;
+    budget.categories.personalCare =
+      personalCare || budget.categories.personalCare;
     budget.categories.legal = legal || budget.categories.legal;
     budget.categories.totalExpenses = totalExpenses;
 
