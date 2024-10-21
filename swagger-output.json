@@ -808,9 +808,6 @@
     },
     "/api/personal/create": {
       "post": {
-        "tags": [
-          "User-Expenses Allocation"
-        ],
         "description": "",
         "parameters": [
           {
