@@ -7,6 +7,11 @@ const ChildExpensesSchema = new mongoose.Schema({
     ref: 'ExpensesMaster',  
     required: true,
   },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+},
   category: {
     type: [String],  
     required: true,
@@ -17,3 +22,4 @@ const ChildExpensesSchema = new mongoose.Schema({
 const ChildExpenses = mongoose.model('ChildExpenses', ChildExpensesSchema);
 
 module.exports = ChildExpenses;
+

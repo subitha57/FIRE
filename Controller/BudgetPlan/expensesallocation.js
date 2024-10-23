@@ -45,19 +45,22 @@ exports.upsert = async (req, res) => {
       }
     }
 
+    // Calculate total expenses
+    const totalExpenses = updatedTitles.reduce((total, title) => total + title.amount, 0);
+
     const updateData = {
       userId: user._id,
       month: currentMonth,
       year: currentYear,
       titles: updatedTitles,
+      totalExpenses, // Include totalExpenses in updateData
     };
 
-    const updatedOrCreatedAllocation =
-      await ExpensesAllocation.findOneAndUpdate(
-        { userId: user._id, month: currentMonth, year: currentYear },
-        { $set: updateData },
-        { new: true, upsert: true }
-      );
+    const updatedOrCreatedAllocation = await ExpensesAllocation.findOneAndUpdate(
+      { userId: user._id, month: currentMonth, year: currentYear },
+      { $set: updateData },
+      { new: true, upsert: true }
+    );
 
     const response = {
       statuscode: "0",
@@ -73,6 +76,7 @@ exports.upsert = async (req, res) => {
         },
         {
           titles: updatedOrCreatedAllocation.titles,
+          totalExpenses: updatedOrCreatedAllocation.totalExpenses, // Add totalExpenses to response
         },
       ],
     };
@@ -87,6 +91,7 @@ exports.upsert = async (req, res) => {
   }
 };
 
+
 exports.getAll = async (req, res) => {
   //#swagger.tags = ['Expenses Allocation']
   try {
@@ -95,6 +100,65 @@ exports.getAll = async (req, res) => {
       statuscode: "0",
       message: "Expenses Allocations fetched successfully",
       data: allocations,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      statuscode: "1",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+exports.getById = async (req, res) => {
+  //#swagger.tags = ['Expenses Allocation']
+  const { userId, month, year } = req.params;
+
+  try {
+    const allocation = await ExpensesAllocation.findOne({
+      userId,
+      month,
+      year,
+    });
+    
+    if (!allocation) {
+      return res.status(404).json({
+        statuscode: "1",
+        message: "Expenses Allocation not found",
+      });
+    }
+
+    return res.status(200).json({
+      statuscode: "0",
+      message: "Expenses Allocation fetched successfully",
+      data: allocation,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      statuscode: "1",
+      message: "Internal Server Error",
+    });
+  }
+};
+
+
+
+exports.delete = async (req, res) => {
+  const { allocationId } = req.params;
+
+  try {
+    const allocation = await ExpensesAllocation.findByIdAndDelete(allocationId);
+    if (!allocation) {
+      return res.status(404).json({
+        statuscode: "1",
+        message: "Expenses Allocation not found",
+      });
+    }
+
+    res.status(200).json({
+      statuscode: "0",
+      message: "Expenses Allocation deleted successfully",
     });
   } catch (err) {
     console.error(err);

@@ -5,108 +5,82 @@ const User = require("../Model/emailModel");
 
 exports.upsert = async (req, res) => {
   //#swagger.tags = ['Child-Expenses']
+  const { id, expensesId, category, userId } = req.body;
 
   try {
-    const { id, expensesId, category, userId } = req.body;
-
-    if (!userId || !expensesId || !category || !Array.isArray(category)) {
-      return res.status(200).json({
-        message: "UserId, ExpensesId, and category (array) are required",
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(400).json({
         statusCode: "1",
-      });
-    }
-
-    const userExists = await User.findById(userId);
-    if (!userExists) {
-      return res.status(200).json({
         message: "User not found",
-        statusCode: "1",
       });
     }
 
-    const existingChildExpense = await ChildExpenses.findOne({ expensesId });
+    const expenses = await ExpensesMaster.findById(expensesId);
+    if (!expenses) {
+      return res.status(400).json({
+        statusCode: "1",
+        message: "Expenses ID does not exist",
+      });
+    }
 
-    if (existingChildExpense) {
-      const existingCategories = existingChildExpense.category;
-      const duplicates = category.filter((cat) =>
-        existingCategories.includes(cat)
+    if (id) {
+      const updatedsubCategory = await ChildExpenses.findByIdAndUpdate(
+        id,
+        { $addToSet: { category: category } },
+        { new: true }
       );
 
-      if (duplicates.length > 0) {
-        return res.status(200).json({
-          message: `Category(ies) [${duplicates.join(
-            ", "
-          )}] already exist(s) in ChildExpenses`,
+      if (!updatedsubCategory) {
+        return res.status(404).json({
           statusCode: "1",
+          message: "SubCategory not found",
         });
       }
 
-      const updatedCategories = [...existingCategories, ...category];
-      existingChildExpense.category = updatedCategories;
-      existingChildExpense.userId = userId;
-      await existingChildExpense.save();
-
-      const populatedExpense = await existingChildExpense.populate(
-        "expensesId",
-        "title"
-      );
+      return res.status(200).json({
+        statusCode: "0",
+        message: "SubCategory updated successfully",
+        data: updatedsubCategory,
+      });
+    } else {
+      const newsubCategory = await new ChildExpenses({
+        userId,
+        expensesId,
+        category: [category],
+      }).save();
 
       return res.status(201).json({
-        message: "Categories updated successfully",
-        userId,
-        id: existingChildExpense._id,
-        data: {
-          expensesId,
-          category: populatedExpense.category,
-        },
         statusCode: "0",
+        data: newsubCategory,
+        message: "SubCategory added successfully",
       });
     }
-
-    const newChildExpense = new ChildExpenses({
-      expensesId,
-      category,
-      userId,
-    });
-
-    const savedExpense = await newChildExpense.save();
-    const populatedExpense = await savedExpense.populate("expensesId", "title");
-
-    return res.status(201).json({
-      message: "Categories are created successfully",
-
-      userId,
-      id: newChildExpense._id,
-      data: {
-        expensesId,
-        category: populatedExpense.category,
-      },
-      statusCode: "0",
-    });
   } catch (error) {
-    console.error("Error in upserting child expenses:", error);
-    return res.status(200).json({
-      message: "Internal server error",
+    return res.status(500).json({
       statusCode: "1",
+      message: error.message,
     });
   }
 };
 
 exports.getAll = async (req, res) => {
   //#swagger.tags = ['Child-Expenses']
-
   try {
-    const subcategory = await ChildExpenses.find();
-    return res.status(201).json({
-      message: "ChildExpenses fetched successfully",
-      data: subcategory,
+    const categories = await ChildExpenses.find().populate({
+      path: "expensesId",
+      select: "title",
+    });
+
+    res.status(201).json({
       statusCode: "0",
+      message: "SubCategories data retrieved successfully",
+      data: categories,
     });
   } catch (error) {
-    console.error("Error in fetching child expenses:", error);
-    return res.status(200).json({
-      message: "Internal server error",
+    res.status(500).json({
       statusCode: "1",
+      message: "Failed to retrieve subCategories data",
     });
   }
 };

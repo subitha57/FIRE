@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
 const { verifyToken } = require("../../Middleware/authMiddleware");
-const ExpensesChild = require("../../Controller/ChildExpenses");
+const ChildExpenses = require("../../Controller/ChildExpenses");
 
-router.post("/create", verifyToken, ExpensesChild.upsert);
+router.post("/create", verifyToken, ChildExpenses.upsert);
 
-router.get("/all", verifyToken, ExpensesChild.getAll);
+router.get("/all", verifyToken, ChildExpenses.getAll);
 
-router.delete("/delete/:id", verifyToken, ExpensesChild.delete);
+router.delete("/delete/:id", verifyToken, ChildExpenses.delete);
 
-router.get("/search", verifyToken, ExpensesChild.search);
+router.get("/search", verifyToken, ChildExpenses.search);
 
 module.exports = router;

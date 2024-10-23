@@ -5,8 +5,11 @@ const { verifyToken } = require("../../Middleware/authMiddleware");
 
 router.post("/create", verifyToken, ExpensesAllocation.upsert);
 
-router.delete("/delete/:id", verifyToken, ExpensesAllocation.delete);
+router.delete("/delete/:allocationId", verifyToken, ExpensesAllocation.delete);
 
 router.get("/getAll", verifyToken, ExpensesAllocation.getAll);
 
+router.get("/:userId/:month/:year", ExpensesAllocation.getById);
+
 module.exports = router;
+  
