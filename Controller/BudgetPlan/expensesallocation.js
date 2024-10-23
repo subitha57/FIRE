@@ -3,6 +3,7 @@ const ExpensesMaster = require("../../Model/expensesModel");
 const ExpensesAllocation = require("../../Model/ExpensesAllocation");
 
 exports.upsert = async (req, res) => {
+  //#swagger.tags = ['Expenses Allocation']
   try {
     const { userId, titles } = req.body;
 
@@ -87,6 +88,7 @@ exports.upsert = async (req, res) => {
 };
 
 exports.getAll = async (req, res) => {
+  //#swagger.tags = ['Expenses Allocation']
   try {
     const allocations = await ExpensesAllocation.find();
     return res.status(200).json({
