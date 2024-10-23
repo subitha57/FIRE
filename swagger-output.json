@@ -53,6 +53,9 @@
     },
     "/api/user/verify-otp": {
       "post": {
+        "tags": [
+          "Login-User"
+        ],
         "description": "",
         "parameters": [
           {
@@ -811,6 +814,9 @@
     },
     "/api/personal/create": {
       "post": {
+        "tags": [
+          "Expenses Allocation"
+        ],
         "description": "",
         "parameters": [
           {
@@ -884,6 +890,9 @@
     },
     "/api/personal/getAll": {
       "get": {
+        "tags": [
+          "Expenses Allocation"
+        ],
         "description": "",
         "parameters": [
           {
