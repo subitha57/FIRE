@@ -5,7 +5,7 @@
     "description": "Version 1.0",
     "version": "1.0.0"
   },
-  "host": "fire-8em5.onrender.com",
+  "host": "fire-backend.onrender.com",
   "basePath": "/",
   "schemes": [
     "https"
