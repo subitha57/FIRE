@@ -820,11 +820,6 @@
         "description": "",
         "parameters": [
           {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
             "name": "body",
             "in": "body",
             "schema": {
@@ -843,9 +838,6 @@
         "responses": {
           "201": {
             "description": "Created"
-          },
-          "401": {
-            "description": "Unauthorized"
           },
           "404": {
             "description": "Not Found"

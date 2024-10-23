@@ -15,9 +15,7 @@ exports.upsert = async (req, res) => {
       });
     }
 
-    const currentMonth = new Date().toLocaleString("default", {
-      month: "long",
-    });
+    const currentMonth = new Date().toLocaleString("default", { month: "long" });
     const currentYear = new Date().getFullYear();
 
     const existingAllocation = await ExpensesAllocation.findOne({
@@ -26,8 +24,34 @@ exports.upsert = async (req, res) => {
       year: currentYear,
     });
 
-    let updatedTitles = titles;
-    if (!titles || titles.length === 0) {
+    let updatedTitles = [];
+
+    // If titles are provided in the request body
+    if (titles && titles.length > 0) {
+      // If there's an existing allocation, get its titles
+      if (existingAllocation) {
+        const existingTitles = existingAllocation.titles;
+
+        // Create a map for quick access
+        const existingTitlesMap = existingTitles.reduce((acc, title) => {
+          acc[title.title] = title.amount; // Map title name to its amount
+          return acc;
+        }, {});
+
+        // Update only the specified titles and keep others as they are
+        updatedTitles = titles.map((title) => ({
+          title: title.title,
+          amount: title.amount !== undefined ? title.amount : existingTitlesMap[title.title] || 0,
+        }));
+      } else {
+        // If no existing allocation, use provided titles
+        updatedTitles = titles.map((title) => ({
+          title: title.title,
+          amount: title.amount || 0,
+        }));
+      }
+    } else {
+      // If no titles are provided, fetch active expenses from ExpensesMaster
       const expensesMaster = await ExpensesMaster.find({ userId: userId });
 
       updatedTitles = expensesMaster
@@ -45,15 +69,11 @@ exports.upsert = async (req, res) => {
       }
     }
 
-    // Calculate total expenses
-    const totalExpenses = updatedTitles.reduce((total, title) => total + title.amount, 0);
-
     const updateData = {
       userId: user._id,
       month: currentMonth,
       year: currentYear,
       titles: updatedTitles,
-      totalExpenses, // Include totalExpenses in updateData
     };
 
     const updatedOrCreatedAllocation = await ExpensesAllocation.findOneAndUpdate(
@@ -61,6 +81,8 @@ exports.upsert = async (req, res) => {
       { $set: updateData },
       { new: true, upsert: true }
     );
+
+    const totalExpenses = updatedTitles.reduce((acc, title) => acc + title.amount, 0);
 
     const response = {
       statuscode: "0",
@@ -76,7 +98,7 @@ exports.upsert = async (req, res) => {
         },
         {
           titles: updatedOrCreatedAllocation.titles,
-          totalExpenses: updatedOrCreatedAllocation.totalExpenses, // Add totalExpenses to response
+          totalExpenses: totalExpenses, // Add total expenses to response
         },
       ],
     };
@@ -90,6 +112,7 @@ exports.upsert = async (req, res) => {
     });
   }
 };
+
 
 
 exports.getAll = async (req, res) => {

@@ -3,7 +3,7 @@ const router = express.Router();
 const ExpensesAllocation = require("../../Controller/BudgetPlan/expensesallocation");
 const { verifyToken } = require("../../Middleware/authMiddleware");
 
-router.post("/create", verifyToken, ExpensesAllocation.upsert);
+router.post("/create",  ExpensesAllocation.upsert);
 
 router.delete("/delete/:allocationId", verifyToken, ExpensesAllocation.delete);
 
