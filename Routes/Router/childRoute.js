@@ -7,8 +7,8 @@ router.post("/create", verifyToken, ExpensesChild.upsert);
 
 router.get("/all", verifyToken, ExpensesChild.getAll);
 
-router.delete('/delete/:id', verifyToken, ExpensesChild.delete);
+router.delete("/delete/:id", verifyToken, ExpensesChild.delete);
 
-router.get("/search",verifyToken, ExpensesChild.search);
+router.get("/search", verifyToken, ExpensesChild.search);
 
 module.exports = router;

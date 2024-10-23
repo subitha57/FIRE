@@ -1,17 +1,26 @@
 const ChildExpenses = require("../Model/ChildExpensesModel");
 const ExpensesMaster = require("../Model/expensesModel");
 const _ = require("lodash");
+const User = require("../Model/emailModel");
 
 exports.upsert = async (req, res) => {
   //#swagger.tags = ['Child-Expenses']
 
   try {
-    const { id, expensesId, category } = req.body;
+    const { id, expensesId, category, userId } = req.body;
 
-    if (!expensesId || !category || !Array.isArray(category)) {
-      return res.status(200).json({ 
-        message: "ExpensesId and category (array) are required", 
-        statusCode: "1" 
+    if (!userId || !expensesId || !category || !Array.isArray(category)) {
+      return res.status(200).json({
+        message: "UserId, ExpensesId, and category (array) are required",
+        statusCode: "1",
+      });
+    }
+
+    const userExists = await User.findById(userId);
+    if (!userExists) {
+      return res.status(200).json({
+        message: "User not found",
+        statusCode: "1",
       });
     }
 
@@ -19,21 +28,22 @@ exports.upsert = async (req, res) => {
 
     if (existingChildExpense) {
       const existingCategories = existingChildExpense.category;
-
       const duplicates = category.filter((cat) =>
         existingCategories.includes(cat)
       );
 
       if (duplicates.length > 0) {
         return res.status(200).json({
-          message: `Category(ies) [${duplicates.join(", ")}] already exist(s) in ChildExpenses`,
-          statusCode: "1"
+          message: `Category(ies) [${duplicates.join(
+            ", "
+          )}] already exist(s) in ChildExpenses`,
+          statusCode: "1",
         });
       }
 
       const updatedCategories = [...existingCategories, ...category];
-
       existingChildExpense.category = updatedCategories;
+      existingChildExpense.userId = userId;
       await existingChildExpense.save();
 
       const populatedExpense = await existingChildExpense.populate(
@@ -42,31 +52,42 @@ exports.upsert = async (req, res) => {
       );
 
       return res.status(201).json({
-        message: "ChildExpenses updated successfully with new categories",
-        data: populatedExpense,
-        statusCode: "0"
+        message: "Categories updated successfully",
+        userId,
+        id: existingChildExpense._id,
+        data: {
+          expensesId,
+          category: populatedExpense.category,
+        },
+        statusCode: "0",
       });
     }
 
     const newChildExpense = new ChildExpenses({
       expensesId,
       category,
+      userId,
     });
 
     const savedExpense = await newChildExpense.save();
-
     const populatedExpense = await savedExpense.populate("expensesId", "title");
 
     return res.status(201).json({
-      message: "ChildExpenses created successfully",
-      data: populatedExpense,
-      statusCode: "0"
+      message: "Categories are created successfully",
+
+      userId,
+      id: newChildExpense._id,
+      data: {
+        expensesId,
+        category: populatedExpense.category,
+      },
+      statusCode: "0",
     });
   } catch (error) {
     console.error("Error in upserting child expenses:", error);
-    return res.status(200).json({ 
-      message: "Internal server error", 
-      statusCode: "1" 
+    return res.status(200).json({
+      message: "Internal server error",
+      statusCode: "1",
     });
   }
 };
@@ -75,21 +96,17 @@ exports.getAll = async (req, res) => {
   //#swagger.tags = ['Child-Expenses']
 
   try {
-    const childExpenses = await ChildExpenses.find().populate(
-      "expensesId",
-      "title"
-    );
-
+    const subcategory = await ChildExpenses.find();
     return res.status(201).json({
       message: "ChildExpenses fetched successfully",
-      data: childExpenses,
-      statusCode: "0"
+      data: subcategory,
+      statusCode: "0",
     });
   } catch (error) {
     console.error("Error in fetching child expenses:", error);
-    return res.status(200).json({ 
-      message: "Internal server error", 
-      statusCode: "1" 
+    return res.status(200).json({
+      message: "Internal server error",
+      statusCode: "1",
     });
   }
 };
@@ -101,31 +118,31 @@ exports.delete = async (req, res) => {
     const { id } = req.params;
 
     if (!id) {
-      return res.status(200).json({ 
-        message: "ChildExpenses ID is required", 
-        statusCode: "1" 
+      return res.status(200).json({
+        message: "ChildExpenses ID is required",
+        statusCode: "1",
       });
     }
 
     const deletedExpense = await ChildExpenses.findByIdAndDelete(id);
 
     if (!deletedExpense) {
-      return res.status(200).json({ 
-        message: "ChildExpenses not found", 
-        statusCode: "1" 
+      return res.status(200).json({
+        message: "ChildExpenses not found",
+        statusCode: "1",
       });
     }
 
     return res.status(201).json({
       message: "ChildExpenses deleted successfully",
       data: deletedExpense,
-      statusCode: "0"
+      statusCode: "0",
     });
   } catch (error) {
     console.error("Error in deleting child expenses:", error);
-    return res.status(200).json({ 
-      message: "Internal server error", 
-      statusCode: "1" 
+    return res.status(200).json({
+      message: "Internal server error",
+      statusCode: "1",
     });
   }
 };

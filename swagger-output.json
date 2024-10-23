@@ -53,9 +53,6 @@
     },
     "/api/user/verify-otp": {
       "post": {
-        "tags": [
-          "Login-User"
-        ],
         "description": "",
         "parameters": [
           {
@@ -75,11 +72,17 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "201": {
             "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -808,9 +811,6 @@
     },
     "/api/personal/create": {
       "post": {
-        "tags": [
-          "User-ExpensesAllocation"
-        ],
         "description": "",
         "parameters": [
           {
@@ -826,48 +826,7 @@
               "properties": {
                 "userId": {
                   "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/personal/update/{id}": {
-      "put": {
-        "tags": [
-          "User-ExpensesAllocation"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
+                },
                 "titles": {
                   "example": "any"
                 }
@@ -876,14 +835,14 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "201": {
             "description": "Created"
           },
           "401": {
             "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
           },
           "500": {
             "description": "Internal Server Error"
@@ -893,9 +852,6 @@
     },
     "/api/personal/delete/{id}": {
       "delete": {
-        "tags": [
-          "User-ExpensesAllocation"
-        ],
         "description": "",
         "parameters": [
           {
@@ -914,46 +870,11 @@
           "200": {
             "description": "OK"
           },
-          "201": {
-            "description": "Created"
-          },
           "401": {
             "description": "Unauthorized"
           },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/personal/getById/{id}": {
-      "get": {
-        "tags": [
-          "User-ExpensesAllocation"
-        ],
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "201": {
-            "description": "Created"
-          },
-          "401": {
-            "description": "Unauthorized"
+          "404": {
+            "description": "Not Found"
           },
           "500": {
             "description": "Internal Server Error"
@@ -963,9 +884,6 @@
     },
     "/api/personal/getAll": {
       "get": {
-        "tags": [
-          "User-ExpensesAllocation"
-        ],
         "description": "",
         "parameters": [
           {
@@ -975,8 +893,8 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created"
+          "200": {
+            "description": "OK"
           },
           "401": {
             "description": "Unauthorized"
@@ -1010,12 +928,18 @@
                 },
                 "title": {
                   "example": "any"
+                },
+                "userId": {
+                  "example": "any"
                 }
               }
             }
           }
         ],
         "responses": {
+          "200": {
+            "description": "OK"
+          },
           "201": {
             "description": "Created"
           },
@@ -1109,8 +1033,8 @@
           }
         ],
         "responses": {
-          "201": {
-            "description": "Created"
+          "200": {
+            "description": "OK"
           },
           "401": {
             "description": "Unauthorized"
@@ -1390,6 +1314,9 @@
                   "example": "any"
                 },
                 "category": {
+                  "example": "any"
+                },
+                "userId": {
                   "example": "any"
                 }
               }

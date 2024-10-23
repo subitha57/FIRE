@@ -6,6 +6,9 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
 require("dotenv").config();
+const ExpensesMaster = require("../../Model/expensesModel");
+const ExpensesAllocation = require("../../Model/ExpensesAllocation");
+const ChildExpenses = require("../../Model/ChildExpensesModel");
 
 const cryptr = new Cryptr(process.env.JWT_SECRET);
 
@@ -90,114 +93,116 @@ exports.Signin = async (req, res) => {
   }
 };
 
-// exports.verifyOTP = async (req, res) => {
-//   //#swagger.tags = ['Login-User']
-//   const { email, otp } = req.body;
-
-//   if (!email || !otp) {
-//     return res.status(200).json({ error: "Email and OTP are required" });
-//   }
-
-//   try {
-//     const user = await User.findOne({ email });
-
-//     if (!user) {
-//       return res.status(200).json({ error: "User not found" });
-//     }
-
-//     if (user.loggedIn) {
-//       return res.status(200).json({ error: "User is already logged in" });
-//     }
-
-//     const decryptedOtp = cryptr.decrypt(user.otp);
-
-//     if (decryptedOtp === otp) {
-//       const sessionId = uuidv4();
-
-//       const sessionExpiresAt = Date.now() + 14 * 60 * 1000;
-
-//       const token = generateToken(user.email, user._id);
-
-//       user.loggedIn = true;
-//       user.otp = null;
-//       user.token = token;
-//       user.sessionId = sessionId;
-//       user.sessionExpiresAt = sessionExpiresAt;
-//       await user.save();
-
-//       const userProfile = await Profile.findOne({ userId: user._id });
-
-//       res.status(201).json({
-//         success: true,
-//         message: "OTP is valid, user logged in",
-//         token,
-//         sessionId,
-//         sessionExpiresAt,
-//         loggedIn: user.loggedIn,
-//         userId: user._id,
-//         userProfile: userProfile ? true : false,
-//       });
-//     } else {
-//       res.status(200).json({ error: "Invalid OTP" });
-//     }
-//   } catch (err) {
-//     console.error(err);
-//     res.status(200).json({ error: "Failed to verify OTP" });
-//   }
-// };
 exports.verifyOTP = async (req, res) => {
-  //#swagger.tags = ['Login-User']
   const { email, otp } = req.body;
 
   if (!email || !otp) {
-    return res.status(200).json({ error: "Email and OTP are required" });
+    return res.status(400).json({ error: "Email and OTP are required" });
   }
 
   try {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(200).json({ error: "User not found" });
+      return res.status(404).json({ error: "User not found" });
     }
 
     if (user.loggedIn) {
-      return res.status(200).json({ error: "User is already logged in" });
+      return res.status(400).json({ error: "User is already logged in" });
     }
 
     const decryptedOtp = cryptr.decrypt(user.otp);
-
-    if (decryptedOtp === otp) {
-      const sessionId = uuidv4();
-
-      const sessionExpiresAt = Date.now() + 59 * 60 * 1000;
-
-      const token = generateToken(user.email, user._id);
-
-      user.loggedIn = true;
-      user.otp = null;
-      user.token = token;
-      user.sessionId = sessionId;
-      user.sessionExpiresAt = sessionExpiresAt;
-      await user.save();
-
-      const userProfile = await Profile.findOne({ userId: user._id });
-
-      res.status(201).json({
-        success: true,
-        message: "OTP is valid, user logged in",
-        token,
-        sessionId,
-        sessionExpiresAt,
-        loggedIn: user.loggedIn,
-        userId: user._id,
-        userProfile: userProfile ? true : false,
-      });
-    } else {
-      res.status(200).json({ error: "Invalid OTP" });
+    if (decryptedOtp !== otp) {
+      return res.status(400).json({ error: "Invalid OTP" });
     }
+
+    const sessionId = uuidv4();
+    const sessionExpiresAt = Date.now() + 59 * 60 * 1000; // 59 minutes
+    const token = generateToken(user.email, user._id);
+
+    user.loggedIn = true;
+    user.otp = null;
+    user.token = token;
+    user.sessionId = sessionId;
+    user.sessionExpiresAt = sessionExpiresAt;
+    await user.save();
+
+    const existingExpenses = await ExpensesMaster.findOne({ userId: user._id });
+
+    if (!existingExpenses) {
+      const defaultExpenses = [
+        { title: "Housing", active: true, userId: user._id },
+        { title: "Entertainment", active: true, userId: user._id },
+        { title: "Transportation", active: true, userId: user._id },
+        { title: "Loans", active: true, userId: user._id },
+        { title: "Insurance", active: true, userId: user._id },
+      ];
+
+      const createdMasterExpenses = await ExpensesMaster.insertMany(
+        defaultExpenses
+      );
+
+      const subcategoriesMapping = {
+        Housing: ["Rent", "Mortgage", "Utilities", "Phone", "Gas"],
+        Entertainment: ["Movies", "Music", "Events"],
+        Transportation: ["Car", "Fuel", "Public Transport"],
+        Loans: ["Personal Loan", "Car Loan", "Student Loan"],
+        Insurance: ["Health Insurance", "Car Insurance", "Life Insurance"],
+      };
+
+      for (const masterExpense of createdMasterExpenses) {
+        const subcategories = subcategoriesMapping[masterExpense.title] || [];
+
+        const childExpense = {
+          amount: 0,
+          userId: user._id,
+          expensesId: masterExpense._id,
+          category: subcategories,
+          dateCreated: new Date(),
+        };
+
+        await ChildExpenses.create(childExpense);
+      }
+
+      const currentMonth = new Date().toLocaleString("default", {
+        month: "long",
+      });
+      const currentYear = new Date().getFullYear();
+
+      const expensesMaster = await ExpensesMaster.find({ userId: user._id });
+
+      if (expensesMaster.length) {
+        const expensesTitles = expensesMaster.map((expense) => ({
+          title: expense.title,
+          amount: 0,
+        }));
+
+        const newExpensesAllocation = new ExpensesAllocation({
+          userId: user._id,
+          month: currentMonth,
+          year: currentYear,
+          titles: expensesTitles,
+        });
+
+        await newExpensesAllocation.save();
+      }
+    }
+
+    const userProfile = await Profile.findOne({ userId: user._id });
+
+    res.status(201).json({
+      success: true,
+      message: "OTP is valid, user logged in, and default expenses created",
+      token,
+      sessionId,
+      sessionExpiresAt,
+      loggedIn: user.loggedIn,
+      userId: user._id,
+      userProfile: !!userProfile,
+    });
   } catch (err) {
     console.error(err);
-    res.status(200).json({ error: "Failed to verify OTP" });
+    res.status(500).json({ error: "Failed to verify OTP" });
   }
 };
 
@@ -328,6 +333,3 @@ exports.logout = async (req, res) => {
     res.status(200).json({ error: "Failed to log out" });
   }
 };
-
-
-
