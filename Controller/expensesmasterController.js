@@ -9,7 +9,7 @@ exports.upsert = async (req, res) => {
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(400).json({
+      return res.status(200).json({
         statusCode: "1",
         message: "User not found",
       });
@@ -18,7 +18,7 @@ exports.upsert = async (req, res) => {
     if (!id) {
       const existingTitle = await ExpensesMaster.findOne({ userId, title });
       if (existingTitle) {
-        return res.status(400).json({
+        return res.status(200).json({
           statusCode: "1",
           message:
             "This title already exists. Please try again with a different title.",
@@ -65,7 +65,7 @@ exports.getAll = async (req, res) => {
     const expenses = await ExpensesMaster.find({ userId });
 
     if (expenses.length === 0) {
-      return res.status(404).json({
+      return res.status(200).json({
         statusCode: "1",
         message: "No Expenses found for the provided userId",
       });
@@ -99,7 +99,7 @@ exports.getById = async (req, res) => {
         data: expenses,
       });
     } else {
-      res.status(404).json({
+      res.status(200).json({
         statusCode: "1",
         message: "Expense ID not found",
       });
