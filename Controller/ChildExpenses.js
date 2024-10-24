@@ -24,10 +24,20 @@ exports.upsert = async (req, res) => {
       });
     }
 
+    if (
+      !Array.isArray(category) ||
+      category.some((cat) => typeof cat !== "string")
+    ) {
+      return res.status(400).json({
+        statusCode: "1",
+        message: "Category must be an array of strings",
+      });
+    }
+
     if (id) {
       const updatedsubCategory = await ChildExpenses.findByIdAndUpdate(
         id,
-        { $addToSet: { category: category } },
+        { $addToSet: { category: { $each: category } } },
         { new: true }
       );
 
@@ -47,7 +57,7 @@ exports.upsert = async (req, res) => {
       const newsubCategory = await new ChildExpenses({
         userId,
         expensesId,
-        category: [category],
+        category,
       }).save();
 
       return res.status(201).json({
@@ -67,12 +77,28 @@ exports.upsert = async (req, res) => {
 exports.getAll = async (req, res) => {
   //#swagger.tags = ['Child-Expenses']
   try {
-    const categories = await ChildExpenses.find().populate({
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json({
+        statusCode: "1",
+        message: "userId is required",
+      });
+    }
+
+    const categories = await ChildExpenses.find({ userId }).populate({
       path: "expensesId",
       select: "title",
     });
 
-    res.status(201).json({
+    if (categories.length === 0) {
+      return res.status(404).json({
+        statusCode: "1",
+        message: "No subCategories found for this user",
+      });
+    }
+
+    res.status(200).json({
       statusCode: "0",
       message: "SubCategories data retrieved successfully",
       data: categories,
