@@ -941,6 +941,9 @@
     },
     "/api/master/create": {
       "post": {
+        "tags": [
+          "Master-Expenses"
+        ],
         "description": "",
         "parameters": [
           {
@@ -977,6 +980,9 @@
     },
     "/api/master/all": {
       "get": {
+        "tags": [
+          "Master-Expenses"
+        ],
         "description": "",
         "parameters": [
           {

@@ -4,6 +4,7 @@ const User = require("../Model/emailModel");
 const ExpensesAllocation = require("../Model/ExpensesAllocation");
 
 exports.upsert = async (req, res) => {
+  //#swagger.tags = ['Master-Expenses']
   const { userId, title, id } = req.body;
   try {
     const user = await User.findById(userId);
@@ -57,6 +58,7 @@ exports.upsert = async (req, res) => {
 };
 
 exports.getAll = async (req, res) => {
+  //#swagger.tags = ['Master-Expenses']
   const { userId } = req.query;
 
   try {
