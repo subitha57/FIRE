@@ -53,13 +53,15 @@ exports.upsertExpense = async (req, res) => {
     }
 
     if (id) {
+
       // Update existing expense
       const updatedExpense = await ExpensesMaster.findByIdAndUpdate(
+        
         id,
         { title, active: true, userId },
         { new: true, upsert: true }
       );
-
+console.log("updatedExpenses",updatedExpense);
       // Find all allocations for the user
       const allocations = await ExpensesAllocation.find({ userId });
 

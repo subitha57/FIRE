@@ -34,7 +34,6 @@ const generateToken = (email, userId) => {
 };
 
 exports.Signin = async (req, res) => {
-  //#swagger.tags = ['Login-User']
   const { email } = req.body;
 
   if (!email) {
@@ -94,7 +93,6 @@ exports.Signin = async (req, res) => {
 };
 
 exports.verifyOTP = async (req, res) => {
-  //#swagger.tags = ['Login-User']
   const { email, otp } = req.body;
 
   if (!email || !otp) {
@@ -129,8 +127,11 @@ exports.verifyOTP = async (req, res) => {
     await user.save();
 
     const existingExpenses = await ExpensesMaster.findOne({ userId: user._id });
+    console.log("Existing Expenses:", existingExpenses);
 
     if (!existingExpenses) {
+      console.log("Creating default expenses for first-time user");
+
       const defaultExpenses = [
         { title: "Housing", active: true, userId: user._id },
         { title: "Entertainment", active: true, userId: user._id },
@@ -152,17 +153,19 @@ exports.verifyOTP = async (req, res) => {
       };
 
       for (const masterExpense of createdMasterExpenses) {
-        const subcategories = subcategoriesMapping[masterExpense.title] || [];
+        if (masterExpense.active) {
+          const subcategories = subcategoriesMapping[masterExpense.title] || [];
 
-        const childExpense = {
-          amount: 0,
-          userId: user._id,
-          expensesId: masterExpense._id,
-          category: subcategories,
-          dateCreated: new Date(),
-        };
+          const childExpense = {
+            amount: 0,
+            userId: user._id,
+            expensesId: masterExpense._id,
+            category: subcategories,
+            dateCreated: new Date(),
+          };
 
-        await ChildExpenses.create(childExpense);
+          await ChildExpenses.create(childExpense);
+        }
       }
 
       const currentMonth = new Date().toLocaleString("default", {
@@ -170,7 +173,10 @@ exports.verifyOTP = async (req, res) => {
       });
       const currentYear = new Date().getFullYear();
 
-      const expensesMaster = await ExpensesMaster.find({ userId: user._id });
+      const expensesMaster = await ExpensesMaster.find({
+        userId: user._id,
+        active: true,
+      });
 
       if (expensesMaster.length) {
         const expensesTitles = expensesMaster.map((expense) => ({
