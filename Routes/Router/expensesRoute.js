@@ -8,7 +8,7 @@ const ExpensesMaster = require("../../Controller/expensesmasterController");
 // router.get("/getbyid/:expenses_id", verifyToken,ExpensesMaster.getById);
 // router.delete("/delete/:expenses_id", verifyToken,ExpensesMaster.deleteById);
 
-router.post("/create", ExpensesMaster.upsertExpense);
+router.post("/create", ExpensesMaster.upsert);
 router.get("/all", ExpensesMaster.getAll);
 router.get("/getbyid/:expenses_id",ExpensesMaster.getById);
 router.delete("/delete/:expenses_id", ExpensesMaster.deleteById);

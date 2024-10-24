@@ -941,9 +941,6 @@
     },
     "/api/master/create": {
       "post": {
-        "tags": [
-          "Master-Expenses"
-        ],
         "description": "",
         "parameters": [
           {
@@ -952,13 +949,13 @@
             "schema": {
               "type": "object",
               "properties": {
-                "id": {
+                "userId": {
                   "example": "any"
                 },
                 "title": {
                   "example": "any"
                 },
-                "userId": {
+                "id": {
                   "example": "any"
                 }
               }
@@ -966,11 +963,11 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK"
-          },
           "201": {
             "description": "Created"
+          },
+          "400": {
+            "description": "Bad Request"
           },
           "500": {
             "description": "Internal Server Error"
@@ -980,13 +977,20 @@
     },
     "/api/master/all": {
       "get": {
-        "tags": [
-          "Master-Expenses"
-        ],
         "description": "",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
           },
           "500": {
             "description": "Internal Server Error"
