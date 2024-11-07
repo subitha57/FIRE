@@ -56,3 +56,29 @@ exports.create = async (req, res) => {
     });
   }
 };
+
+
+exports.getAll = async (req, res) => {
+  try {
+    const userSavings = await UserSavings.find();
+
+    if (!userSavings || userSavings.length === 0) {
+      return res.status(404).json({
+        statusCode: 404,
+        message: 'No financial plans found'
+      });
+    }
+
+    res.status(200).json({
+      statusCode: 200,
+      message: 'Financial plans retrieved successfully',
+      data: userSavings
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      statusCode: 500,
+      message: 'An error occurred while retrieving financial plans'
+    });
+  }
+};
