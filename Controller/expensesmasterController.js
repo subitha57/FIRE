@@ -18,9 +18,9 @@ exports.upsert = async (req, res) => {
     if (!id) {
       const existingTitle = await ExpensesMaster.findOne({ userId, title });
       if (existingTitle) {
-        return res.status(200).json({
+        return res.status(200).json({ 
           statusCode: "1",
-          message:
+          message: 
             "This title already exists. Please try again with a different title.",
         });
       }
