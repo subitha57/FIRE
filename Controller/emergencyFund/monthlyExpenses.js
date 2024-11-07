@@ -3,8 +3,8 @@ const UserSavings = require('../../Model/monthlyExpenses/monthlyExpensesModel');
 const User = require('../../Model/emailModel');
 
 exports.create = async (req, res) => {
-  const { monthlyExpenses, emergencyFundMonths, monthlySavings } = req.body;
-  const userId = req.user.userId;
+  const {userId, monthlyExpenses, emergencyFundMonths, monthlySavings } = req.body;
+
 
   try {
     // Validate input
@@ -26,10 +26,19 @@ exports.create = async (req, res) => {
       monthlySavings,
       totalEmergencyFund,
     });
-
+    console.log('Saving document:', userSavings);
     await userSavings.save();
 
+    const now = new Date();
+    const responseDate = {
+      year: now.getFullYear(),
+      month: now.getMonth() + 1, // Months are zero-indexed
+      date: now.getDate(),
+      time: now.toLocaleTimeString(), // You can customize the format as needed
+    };
+
     res.status(201).json({
+      statusCode: 201,
       message: 'Financial plan saved successfully',
       data: {
         monthlyExpenses,
@@ -37,9 +46,13 @@ exports.create = async (req, res) => {
         monthlySavings,
         totalEmergencyFund,
       },
+      responseDate,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'An error occurred while saving the financial plan' });
+    res.status(500).json({
+      statusCode: 500,
+      message: 'An error occurred while saving the financial plan'
+    });
   }
 };
