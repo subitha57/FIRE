@@ -82,3 +82,74 @@ exports.getAll = async (req, res) => {
     });
   }
 };
+
+exports.upsert = async (req, res) => {
+  const { userId, monthlyExpenses, emergencyFundMonths, monthlySavings } = req.body;
+
+  try {
+    // Validate input
+    if (isNaN(monthlyExpenses) || isNaN(emergencyFundMonths) || isNaN(monthlySavings)) {
+      return res.status(400).json({ error: 'monthlyExpenses, emergencyFundMonths, and monthlySavings must be valid numbers' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const totalEmergencyFund = monthlyExpenses * emergencyFundMonths;
+
+    // Find and update or create a new UserSavings document if not found
+    let userSavings = await UserSavings.findOneAndUpdate(
+      { userId }, // filter by userId
+      {
+        monthlyExpenses,
+        emergencyFundMonths,
+        monthlySavings,
+        totalEmergencyFund,
+      },
+      { new: true } // return the updated document
+    );
+
+    if (!userSavings) {
+      // If not found, create a new record
+      userSavings = new UserSavings({
+        userId,
+        monthlyExpenses,
+        emergencyFundMonths,
+        monthlySavings,
+        totalEmergencyFund,
+      });
+
+      await userSavings.save();
+      return res.status(201).json({
+        statusCode: 201,
+        message: 'Financial plan created successfully',
+        data: {
+          monthlyExpenses: userSavings.monthlyExpenses,
+          emergencyFundMonths: userSavings.emergencyFundMonths,
+          monthlySavings: userSavings.monthlySavings,
+          totalEmergencyFund: userSavings.totalEmergencyFund,
+        },
+      });
+    }
+
+    // If found and updated, respond with the updated data
+    res.status(200).json({
+      statusCode: 200,
+      message: 'Financial plan updated successfully',
+      data: {
+        monthlyExpenses: userSavings.monthlyExpenses,
+        emergencyFundMonths: userSavings.emergencyFundMonths,
+        monthlySavings: userSavings.monthlySavings,
+        totalEmergencyFund: userSavings.totalEmergencyFund,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      statusCode: 500,
+      message: 'An error occurred while updating the financial plan',
+    });
+  }
+};
